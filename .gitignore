@@ -1,0 +1,6 @@
+
+*.ini
+tree.ico
+build/
+.vscode/
+lib/
