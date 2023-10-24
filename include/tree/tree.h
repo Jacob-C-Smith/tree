@@ -35,3 +35,13 @@
  *  @brief The type definition for a function that tests the equality of two set members
  */
 typedef int (tree_equal_fn)(const void *a, const void *b);
+
+/** !
+ * Compare A to B
+ * 
+ * @param A something to compare
+ * @param B something to compare
+ * 
+ * @return 0 if A == B else -1 if A > B else 1
+ */
+int tree_compare_function ( const void *const a, const void *const b );
