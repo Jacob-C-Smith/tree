@@ -156,7 +156,96 @@ int binary_tree_construct ( binary_tree **const pp_binary_tree, tree_equal_fn *p
     }
 }
 
-int binary_tree_insert ( binary_tree *const p_binary_tree, void *p_value )
+int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value )
+{
+
+    // Argument check
+    if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
+
+    // State check
+    if ( p_binary_tree->p_root == (void *) 0 ) return 0;
+
+    // Initialized data
+    binary_tree_node *p_node = p_binary_tree->p_root;
+    int comparator_return = 0;
+
+    try_again:
+
+    // Which side? 
+    comparator_return = p_binary_tree->pfn_is_equal(p_node->p_key, p_key);
+
+    // Store the node on the left 
+    if ( comparator_return < 0 )
+    {
+
+        // If the left node is occupied ...
+        if ( p_node->p_left )
+        {
+
+            // ... update the state ...
+            p_node = p_node->p_left;
+
+            // ... and try again
+            goto try_again;
+        }
+
+        // Error
+        return 0;
+    }
+
+    // Store the node on the right
+    else if ( comparator_return > 0 )
+    {
+
+        // If the left node is occupied ...
+        if ( p_node->p_right )
+        {
+
+            // ... update the state ...
+            p_node = p_node->p_right;
+
+            // ... and try again
+            goto try_again;
+        }
+
+        // Error
+        return 0;
+    }
+
+    // Return a pointer to the caller
+    *pp_value = p_node->p_value;
+
+    // Success
+    return 1;
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_binary_tree:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__)
+                #endif
+
+                // Error
+                return 0;
+        }
+
+        // Tree errors
+        {
+            failed_to_allocate_binary_tree_node:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Failed to allocate binary tree node in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
+}
+
+int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_key, const void *const p_value )
 {
 
     // Argument check
@@ -172,7 +261,7 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, void *p_value )
     try_again:
 
     // Which side? 
-    comparator_return = p_binary_tree->pfn_is_equal(p_node->data, p_value);
+    comparator_return = p_binary_tree->pfn_is_equal(p_node->p_key, p_key);
 
     // Store the node on the left 
     if ( comparator_return < 0 )
@@ -193,7 +282,8 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, void *p_value )
         if ( binary_tree_node_create(&p_node->p_left) == 0 ) goto failed_to_allocate_binary_tree_node;
 
         // Store the supplied value in the node
-        p_node->p_left->data = p_value;
+        p_node->p_left->p_key   = p_key;
+        p_node->p_left->p_value = p_value;
     }
 
     // Store the node on the right
@@ -215,7 +305,9 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, void *p_value )
         if ( binary_tree_node_create(&p_node->p_right) == 0 ) goto failed_to_allocate_binary_tree_node;
 
         // Store the supplied value in the node
-        p_node->p_right->data = p_value;
+        p_node->p_right->p_key   = p_key;
+        p_node->p_right->p_value = p_value;
+        
     }
 
     // Success
@@ -232,7 +324,8 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, void *p_value )
         if ( binary_tree_node_create(&p_node) == 0 ) goto failed_to_allocate_binary_tree_node;
 
         // Store the supplied value in the node
-        p_node->data = p_value;
+        p_node->p_key   = p_key;
+        p_node->p_value = p_value;
 
         // Store the node as the root of the tree
         p_binary_tree->p_root = p_node;
@@ -267,3 +360,4 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, void *p_value )
         }
     }
 }
+
