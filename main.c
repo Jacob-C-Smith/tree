@@ -9,23 +9,41 @@
 #include <tree/binary.h>
 
 // Preprocessor defines
-#define VALUE_COUNT 7
+#define VALUE_COUNT 15
 
 // Entry point
 int main ( int argc, const char *argv[] )
 {
 
     // Initialized data
-    int values [VALUE_COUNT] = { 4, 2, 6, 1, 3, 5, 7 };
+    int keys [VALUE_COUNT] =
+    { 
+        8,
+        4, 12,
+        2, 6, 10, 14,
+        1, 3, 5, 7, 9, 11, 13, 15
+    };
+    char *values [VALUE_COUNT] = 
+    {
+        "eight",
+        "four", "twelve",
+        "two", "six", "ten", "fourteen",
+        "one", "three", "five", "seven", "nine", "eleven", "thirteen", "fifteen"
+    };
     binary_tree *p_binary_tree = 0;
+    char *p_value = 0;
 
     // Construct a tree
     if ( binary_tree_construct(&p_binary_tree, 0) == 0 ) goto failed_to_construct_tree;
 
     // Insert some values
     for (size_t i = 0; i < VALUE_COUNT; i++)
-        binary_tree_insert(p_binary_tree, values[i]);
+        binary_tree_insert(p_binary_tree, keys[i], values[i]);
     
+    binary_tree_search(p_binary_tree, 7, &p_value);
+
+    printf("%s\n", p_value);
+
     // Success
     return EXIT_SUCCESS;
 
