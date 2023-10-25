@@ -97,7 +97,7 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_remove ( binary_tree *const p_binary_tree, void *p_key, void **p_value );
+int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const p_value );
 
 /** !
  * Deallocate a binary tree

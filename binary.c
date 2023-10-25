@@ -8,6 +8,9 @@
 
 #include <tree/binary.h>
 
+// Forward declarations
+int binary_tree_node_destroy ( binary_tree_node **const pp_binary_tree_node );
+
 int binary_tree_create ( binary_tree **pp_binary_tree )
 {
 
@@ -353,6 +356,254 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
             failed_to_allocate_binary_tree_node:
                 #ifndef NDEBUG
                     printf("[tree] [binary] Failed to allocate binary tree node in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
+}
+
+int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value )
+{
+
+    // Argument check
+    if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
+
+    // State check
+    if ( p_binary_tree->p_root == (void *) 0 ) return 0;
+
+    // Initialized data
+    binary_tree_node *p_node  = p_binary_tree->p_root;
+    void *p_value = 0;
+    int comparator_return = 0;
+
+    try_again:
+
+    // Which side? 
+    comparator_return = p_binary_tree->pfn_is_equal(p_node->p_key, p_key);
+
+    // Check the node on the left 
+    if ( comparator_return < 0 )
+    {
+
+        // If the left node is occupied ...
+        if ( p_node->p_left )
+        {
+            
+            // If the left node is the target, remove it ...
+            if ( p_binary_tree->pfn_is_equal(p_node->p_left->p_key, p_key) == 0 ) goto remove_left;
+
+            // ... otherwise, update the state ...
+            p_node = p_node->p_left;
+
+            // ... and try again
+            goto try_again;
+        }
+
+        // Error
+        return 0;
+    }
+
+    // Check the node on the right
+    else if ( comparator_return > 0 )
+    {
+
+        // If the left node is occupied ...
+        if ( p_node->p_right )
+        {
+
+            // If the left node is the target, remove it ...
+            if ( p_binary_tree->pfn_is_equal(p_node->p_right->p_key, p_key) == 0 ) goto remove_right;
+
+            // ... otherwise, update the state ...
+            p_node = p_node->p_right;
+
+            // ... and try again
+            goto try_again;
+        }
+
+        // Error
+        return 0;
+    }
+
+    done:
+
+    // Return a pointer to the caller
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+
+    // Remove left
+    remove_left:
+    {
+
+        // Initialized data
+        binary_tree_node *p_left = p_node->p_left;
+
+        // Store the return value
+        p_value = p_left->p_value;
+
+        // Leaf
+        if ( ( p_left->p_left || p_left->p_right ) == 0 )
+        {
+
+            // Free the node
+            binary_tree_node_destroy(&p_node->p_left);
+        }
+
+        // Left
+        else if ( p_left->p_left && ( p_left->p_right == 0 ) )
+        {
+            
+            // Update the new left node
+            p_left = p_left->p_left;
+
+            // Free the node
+            binary_tree_node_destroy(&p_node->p_left);
+
+            // Repair the tree
+            p_node->p_left = p_left;
+        }
+
+        // Right
+        else if ( ( p_left->p_left == 0 ) && p_left->p_right )
+        {
+            
+            // Update the new left node
+            p_left = p_left->p_right;
+
+            // Free the node
+            binary_tree_node_destroy(&p_node->p_left);
+
+            // Repair the tree
+            p_node->p_left = p_left;
+        }
+
+        // TODO: Left AND right
+        
+        // Done
+        goto done;
+    }
+
+    // Remove right
+    remove_right:
+    {
+
+        // Initialized data
+        binary_tree_node *p_right = p_node->p_right;
+        
+        // Store the return value
+        p_value = p_right->p_value;
+
+        // Leaf
+        if ( ( p_right->p_left || p_right->p_right ) == 0 )
+        {
+
+            // Free the node
+            binary_tree_node_destroy(&p_node->p_right);
+        }
+
+
+        // Left
+        else if ( p_right->p_left && ( p_right->p_right == 0 ) )
+        {
+            
+            // Update the new left node
+            p_right = p_right->p_left;
+
+            // Free the node
+            binary_tree_node_destroy(&p_node->p_right);
+
+            // Repair the tree
+            p_node->p_right = p_right;
+        }
+
+        // Right
+        else if ( ( p_right->p_left == 0 ) && p_right->p_right )
+        {
+            
+            // Update the new left node
+            p_right = p_right->p_right;
+
+            // Free the node
+            binary_tree_node_destroy(&p_node->p_right);
+
+            // Repair the tree
+            p_node->p_right = p_right;
+        }
+
+        // TODO: Left AND right
+
+        // Done
+        goto done;
+    }
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_binary_tree:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__)
+                #endif
+
+                // Error
+                return 0;
+        }
+
+        // Tree errors
+        {
+            failed_to_allocate_binary_tree_node:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Failed to allocate binary tree node in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
+}
+
+int binary_tree_node_destroy ( binary_tree_node **const pp_binary_tree_node )
+{
+
+    // Argument check
+    if ( pp_binary_tree_node == (void *) 0 ) goto no_binary_tree_node;
+
+    // Initialized data
+    binary_tree_node *p_binary_tree_node = *pp_binary_tree_node;
+
+    // Fast exit
+    if ( p_binary_tree_node == (void *) 0 ) return 1;
+
+    // Free the node
+    (void) TREE_REALLOC(p_binary_tree_node, 0);
+
+    // Success
+    return 1;
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_binary_tree_node:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Null pointer provided for parameter \"pp_binary_tree_node\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+
+        // Standard library
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    printf("[Standard Library] Call to function \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error
