@@ -53,6 +53,37 @@
  
  ## Definitions
  ### Type definitions
- TODO: 
- ### Function definitions
- TODO: 
+```c
+typedef struct binary_tree_s binary_tree;
+typedef struct binary_tree_node_s binary_tree_node;
+
+typedef int (tree_equal_fn)           (const void *a, const void *b)
+typedef int (binary_tree_serialize_fn)(FILE *p_file, binary_tree_node *p_binary_tree_node);
+typedef int (binary_tree_parse_fn)    (FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, unsigned long long node_pointer );
+```
+
+### Function definitions
+ ```c
+// Allocators
+int binary_tree_create ( binary_tree **const pp_binary_tree );
+
+// Constructors
+int binary_tree_construct ( binary_tree **const pp_binary_tree, tree_equal_fn *pfn_is_equal, unsigned long long node_size );
+
+// Accessors
+int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value );
+
+// Mutators
+int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_key, const void  *const p_value );
+int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const p_value );
+
+// Parser
+int binary_tree_parse ( binary_tree **const pp_binary_tree, FILE *p_file, tree_equal_fn *pfn_is_equal, binary_tree_parse_fn *pfn_parse_node );
+
+// Serializer
+int binary_tree_serialize ( binary_tree *const p_binary_tree, FILE *p_file, binary_tree_serialize_fn *pfn_serialize_node );
+
+// Destructors
+int binary_tree_destroy ( binary_tree **const pp_binary_tree );
+ ```
+ 
