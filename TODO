@@ -1,0 +1,7 @@
+ - Implement the recursive O(n) algorithm for constructing a balanced binary search tree from a sorted list of keys
+ - Implement Red-Black tree
+ - Test Red-Black tree
+ - Implement AVL tree
+ - Test AVL tree
+ - Implement B-Tree
+ - Test B-Tree
