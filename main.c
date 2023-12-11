@@ -68,13 +68,13 @@ int main ( int argc, const char *argv[] )
     fclose(p_file);
 
     // Open the file
-    p_file = fopen("output.binary_tree", "rb");
+    // p_file = fopen("output.binary_tree", "rb");
 
     // Construct a binary tree from a file
-    if ( binary_tree_parse(&p_binary_tree_from_disk, p_file, tree_compare_function, binary_tree_parse_function) == 0 ) goto failed_to_parse_binary_tree;
+    // if ( binary_tree_parse(&p_binary_tree_from_disk, p_file, tree_compare_function, binary_tree_parse_function) == 0 ) goto failed_to_parse_binary_tree;
 
     // Close the file
-    fclose(p_file);
+    // fclose(p_file);
 
     // Success
     return EXIT_SUCCESS;

@@ -133,16 +133,6 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
 
 // Parser
 /** !
- * Construct a binary tree node from a file
- * 
- * @param p_file             the file
- * @param p_binary_tree_node the binary tree node
- * 
- * @return 1 on success, 0 on error
- */
-int binary_tree_parse_function ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, unsigned long long node_pointer );
-
-/** !
  * Construct a binary tree from a file
  * 
  * @param pp_binary_tree return
@@ -156,18 +146,6 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, FILE *p_file, tree_e
 
 // Serializer
 /** !
- * Write a binary tree node to a file
- * 
- * @param p_file                    the file
- * @param p_binary_tree             the binary tree
- * @param p_binary_tree_node        the binary tree noe
- * @param pfn_binary_tree_serialize a function for serializing nodes to the file
- * 
- * @return 1 on success, 0 on error
- */
-int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node *p_binary_tree_node, binary_tree_serialize_fn *pfn_binary_tree_serialize );
-
-/** !
  * Write a binary tree to a file
  * 
  * @param p_binary_tree      the binary tree 
@@ -178,6 +156,7 @@ int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binar
  */
 int binary_tree_serialize ( binary_tree *const p_binary_tree, FILE *p_file, binary_tree_serialize_fn *pfn_serialize_node );
 
+// Destructors
 /** !
  * Deallocate a binary tree
  * 
