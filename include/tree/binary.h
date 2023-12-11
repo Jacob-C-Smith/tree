@@ -26,22 +26,52 @@ struct binary_tree_s;
 struct binary_tree_node_s;
 
 // Type definitions
+/** !
+ *  @brief The type definition for a binary tree
+ */
 typedef struct binary_tree_s binary_tree;
+
+/** !
+ *  @brief The type definition for a binary tree node
+ */
 typedef struct binary_tree_node_s binary_tree_node;
+
+/** !
+ *  @brief The type definition for a function that serializes a node
+ */
+typedef int (binary_tree_serialize_fn)(FILE *p_file, binary_tree_node *p_binary_tree_node);
+
+/** !
+ *  @brief The type definition for a function that parses a node
+ */
+typedef int (binary_tree_parse_fn)(FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, unsigned long long node_pointer );
 
 // Struct definitions
 struct binary_tree_node_s
 { 
-    void             *p_key,
-                     *p_value;
-    binary_tree_node *p_left,
-                     *p_right;
+    void               *p_key,
+                       *p_value;
+    binary_tree_node   *p_left,
+                       *p_right;
+    unsigned long long  node_pointer;
 };
 
 struct binary_tree_s
 {
     binary_tree_node *p_root;
-    tree_equal_fn    *pfn_is_equal;
+
+    struct 
+    {
+        tree_equal_fn            *pfn_is_equal;
+        binary_tree_serialize_fn *pfn_serialize_node;
+        binary_tree_parse_fn     *pfn_parse_node;
+    } functions;
+
+    struct 
+    {
+        unsigned long long node_quantity;
+        unsigned long long node_size;
+    } metadata;
 };
 
 // Allocators
@@ -60,10 +90,11 @@ int binary_tree_create ( binary_tree **const pp_binary_tree );
  * 
  * @param pp_binary_tree return
  * @param pfn_is_equal   function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param node_size      the size of a serialized node in bytes
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_construct ( binary_tree **const pp_binary_tree, tree_equal_fn *pfn_is_equal );
+int binary_tree_construct ( binary_tree **const pp_binary_tree, tree_equal_fn *pfn_is_equal, unsigned long long node_size );
 
 // Accessors
 /** !
@@ -79,10 +110,11 @@ int binary_tree_search ( const binary_tree *const p_binary_tree, const void *con
 
 // Mutators
 /** !
- * Insert an element into a binary tree
+ * Insert a property into a binary tree
  * 
  * @param p_binary_tree the binary tree
- * @param p_value       the element
+ * @param p_key         the property key
+ * @param p_value       the property value
  * 
  * @return 1 on success, 0 on error
  */
@@ -98,6 +130,53 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
  * @return 1 on success, 0 on error
  */
 int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const p_value );
+
+// Parser
+/** !
+ * Construct a binary tree node from a file
+ * 
+ * @param p_file             the file
+ * @param p_binary_tree_node the binary tree node
+ * 
+ * @return 1 on success, 0 on error
+ */
+int binary_tree_parse_function ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, unsigned long long node_pointer );
+
+/** !
+ * Construct a binary tree from a file
+ * 
+ * @param pp_binary_tree return
+ * @param p_file         the file
+ * @param pfn_is_equal   function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pfn_parse_node a function for parsing nodes from the file
+ * 
+ * @return 1 on success, 0 on error
+ */
+int binary_tree_parse ( binary_tree **const pp_binary_tree, FILE *p_file, tree_equal_fn *pfn_is_equal, binary_tree_parse_fn *pfn_parse_node );
+
+// Serializer
+/** !
+ * Write a binary tree node to a file
+ * 
+ * @param p_file                    the file
+ * @param p_binary_tree             the binary tree
+ * @param p_binary_tree_node        the binary tree noe
+ * @param pfn_binary_tree_serialize a function for serializing nodes to the file
+ * 
+ * @return 1 on success, 0 on error
+ */
+int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node *p_binary_tree_node, binary_tree_serialize_fn *pfn_binary_tree_serialize );
+
+/** !
+ * Write a binary tree to a file
+ * 
+ * @param p_binary_tree      the binary tree 
+ * @param p_file             the file
+ * @param pfn_serialize_node a function for serializing nodes to the file
+ * 
+ * @return 1 on success, 0 on error
+ */
+int binary_tree_serialize ( binary_tree *const p_binary_tree, FILE *p_file, binary_tree_serialize_fn *pfn_serialize_node );
 
 /** !
  * Deallocate a binary tree
