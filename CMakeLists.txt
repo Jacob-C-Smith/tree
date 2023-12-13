@@ -31,6 +31,20 @@ if ( NOT "${HAS_SYNC}")
     set(HAS_SYNC true PARENT_SCOPE)
 endif()
 
+# Find the log module
+if ( NOT "${HAS_LOG}")
+
+    # Log
+    message("[tree] Adding log project")
+
+    # Add the log directory
+    add_subdirectory(${CMAKE_SOURCE_DIR}/extern/log ${CMAKE_SOURCE_DIR}/build/log)
+
+    # Let any parent project know that this project has log
+    set(HAS_LOG true PARENT_SCOPE)
+endif()
+
+
 # Add the tree project
 if ( NOT "${HAS_TREE}")
 
@@ -43,9 +57,9 @@ endif()
 
 # Add source to this project's executable.
 add_executable (tree_example "main.c")
-add_dependencies(tree_example sync tree)
-target_include_directories(tree_example PUBLIC include include/tree ${CMAKE_SOURCE_DIR}/extern/sync/include/)
-target_link_libraries(tree_example sync tree)
+add_dependencies(tree_example tree)
+target_include_directories(tree_example PUBLIC include include/tree)
+target_link_libraries(tree_example tree)
 
 # Add source to the tester
 # add_executable (tree_test "tree_test.c")
@@ -54,7 +68,7 @@ target_link_libraries(tree_example sync tree)
 # target_link_libraries(tree_test sync tree)
 
 # Add source to this project's library
-add_library (tree SHARED "tree.c" "binary.c" "b.c" "redblack.c")
-add_dependencies(tree sync)
-target_include_directories(tree PUBLIC include include/tree ${CMAKE_SOURCE_DIR}/extern/sync/include/)
-target_link_libraries(tree sync)
+add_library (tree SHARED "tree.c" "binary.c" "b.c" "redblack.c" "quad.c")
+add_dependencies(tree sync log)
+target_include_directories(tree PUBLIC include include/tree)
+target_link_libraries(tree sync log)
