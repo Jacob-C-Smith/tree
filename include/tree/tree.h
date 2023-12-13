@@ -32,16 +32,21 @@
 
 // Type definitions
 /** !
- *  @brief The type definition for a function that tests the equality of two set members
+ *  @brief The type definition for a function that tests the equality of two nodes
+ * 
+ *  @param p_a pointer to a
+ *  @param p_b pointer to b
+ * 
+ * @return 0 if a == b else -1 if A > B else 1
  */
-typedef int (tree_equal_fn)(const void *a, const void *b);
+typedef int (tree_equal_fn)(const void *const p_a, const void *const p_b);
 
 /** !
- * Compare A to B
+ * Compare a to b
  * 
- * @param A something to compare
- * @param B something to compare
+ * @param p_a pointer to a
+ * @param p_b pointer to b
  * 
- * @return 0 if A == B else -1 if A > B else 1
+ * @return 0 if a == b else -1 if a > b else 1
  */
-int tree_compare_function ( const void *const a, const void *const b );
+int tree_compare_function ( const void *const p_a, const void *const p_b );

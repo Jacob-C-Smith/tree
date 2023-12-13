@@ -37,12 +37,23 @@ typedef struct binary_tree_s binary_tree;
 typedef struct binary_tree_node_s binary_tree_node;
 
 /** !
- *  @brief The type definition for a function that serializes a node
+ *  @brief The type definition for a function that serializes a node to a file
+ * 
+ *  @param p_file             the file
+ *  @param p_binary_tree_node the binary tree node
+ * 
+ *  @return 1 on success, 0 on error
  */
 typedef int (binary_tree_serialize_fn)(FILE *p_file, binary_tree_node *p_binary_tree_node);
 
 /** !
- *  @brief The type definition for a function that parses a node
+ *  @brief The type definition for a function that parses a node from a file
+ * 
+ *  @param p_file              the file
+ *  @param p_binary_tree       the binary tree node
+ *  @param pp_binary_tree_node return
+ * 
+ *  @return 1 on success, 0 on error
  */
 typedef int (binary_tree_parse_fn)(FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, unsigned long long node_pointer );
 
