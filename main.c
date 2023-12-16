@@ -115,7 +115,7 @@ int binary_tree_example ( int argc, const char *argv[] )
     };
     unsigned long long keys [15] = 
     {
-        8, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15
+        1,2,3,4,5,6,7,8
     };
     FILE *p_file = (void *) 0;
 
@@ -123,10 +123,10 @@ int binary_tree_example ( int argc, const char *argv[] )
     if ( binary_tree_construct(&p_binary_tree, 0, 16) == 0 ) goto failed_to_construct_tree;
 
     // Iterate over each property
-    for (size_t i = 0; i < 15; i++)
+    for (size_t i = 0; i < 8; i++)
 
         // Store each property in the tree
-        binary_tree_insert(p_binary_tree, &keys[i], values[i]);
+        binary_tree_insert(p_binary_tree, keys[i], values[i]);
 
     // Open a file
     p_file = fopen("output.binary_tree", "wb+");
