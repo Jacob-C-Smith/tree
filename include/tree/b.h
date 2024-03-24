@@ -17,3 +17,174 @@
 
 // sync submodule
 #include <sync/sync.h>
+
+// tree
+#include <tree/tree.h>
+
+// Forward declarations
+struct b_tree_s;
+struct b_tree_node_s;
+struct b_tree_metadata_s;
+
+// Type definitions
+/** !
+ *  @brief The type definition for a b tree
+ */
+typedef struct b_tree_s b_tree;
+
+/** !
+ *  @brief The type definition for a b tree node
+ */
+typedef struct b_tree_node_s b_tree_node;
+
+/** !
+ *  @brief The type definition for a b tree metadata
+ */
+typedef struct b_tree_metadata_s b_tree_metadata;
+
+/** !
+ *  @brief The type definition for a function that serializes a node to a file
+ * 
+ *  @param p_file        the file
+ *  @param p_b_tree_node the b tree node
+ * 
+ *  @return 1 on success, 0 on error
+ */
+typedef int (b_tree_serialize_fn)(FILE *p_file, b_tree_node *p_b_tree_node);
+
+/** !
+ *  @brief The type definition for a function that parses a node from a file
+ * 
+ *  @param p_file         the file
+ *  @param p_b_tree       the b tree node
+ *  @param pp_b_tree_node return
+ * 
+ *  @return 1 on success, 0 on error
+ */
+typedef int (b_tree_parse_fn)(FILE *p_file, b_tree *p_b_tree, b_tree_node **pp_b_tree_node, unsigned long long node_pointer );
+
+// Struct definitions
+struct b_tree_node_s
+{ 
+
+    bool               leaf;
+    int                key_quantity;
+    unsigned long long node_pointer;
+};
+
+struct b_tree_metadata_s
+{
+    unsigned long long node_quantity,
+                       root_address;
+    int node_size,
+        key_quantity,
+        degree,
+        height;
+};
+
+struct b_tree_s
+{
+    b_tree_metadata   _metadata;
+    b_tree_node     *p_root;
+    FILE            *p_random_access;
+
+    struct 
+    {
+        tree_equal_fn       *pfn_is_equal;
+        b_tree_serialize_fn *pfn_serialize_node;
+        b_tree_parse_fn     *pfn_parse_node;
+    } functions;
+};
+
+// Allocators
+/** !
+ * Allocate memory for a b tree
+ * 
+ * @param pp_b_tree return
+ * 
+ * @return 1 on success, 0 on error
+ */
+int b_tree_create ( b_tree **const pp_b_tree );
+
+// Constructors
+/** !
+ * Construct an empty b tree
+ * 
+ * @param pp_b_tree      return
+ * @param pfn_is_equal   function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param degree         the degree of the b tree
+ * @param node_size      the size of a serialized node in bytes
+ * 
+ * @return 1 on success, 0 on error
+ */
+int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, tree_equal_fn *pfn_is_equal, int degree, unsigned long long node_size );
+
+// Accessors
+/** !
+ * Search a b tree for an element
+ * 
+ * @param p_b_tree the b tree
+ * @param p_value  the element
+ * @param pp_value return
+ * 
+ * @return 1 on success, 0 on error
+ */
+int b_tree_search ( const b_tree *const p_b_tree, const void *const p_key, const void **const pp_value );
+
+// Mutators
+/** !
+ * Insert a property into a b tree
+ * 
+ * @param p_b_tree the b tree
+ * @param p_key    the property key
+ * @param p_value  the property value
+ * 
+ * @return 1 on success, 0 on error
+ */
+int b_tree_insert ( b_tree *const p_b_tree, const void *const p_key, const void *const p_value );
+
+/** !
+ * Remove an element from a b tree
+ * 
+ * @param p_b_tree the b tree
+ * @param p_key    the element
+ * @param pp_value return
+ * 
+ * @return 1 on success, 0 on error
+ */
+int b_tree_remove ( b_tree *const p_b_tree, const void *const p_key, const void **const p_value );
+
+// Parser
+/** !
+ * Construct a b tree from a file
+ * 
+ * @param pp_b_tree      return
+ * @param p_file         the file
+ * @param pfn_is_equal   function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pfn_parse_node a function for parsing nodes from the file
+ * 
+ * @return 1 on success, 0 on error
+ */
+int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, tree_equal_fn *pfn_is_equal, b_tree_parse_fn *pfn_parse_node );
+
+// Serializer
+/** !
+ * Write a b tree to a file
+ * 
+ * @param p_b_tree           the b tree 
+ * @param p_path             path to the file
+ * @param pfn_serialize_node a function for serializing nodes to the file
+ * 
+ * @return 1 on success, 0 on error
+ */
+int b_tree_serialize ( b_tree *const p_b_tree, const char *p_path, b_tree_serialize_fn *pfn_serialize_node );
+
+// Destructors
+/** !
+ * Deallocate a b tree
+ * 
+ * @param pp_b_tree pointer to b tree pointer
+ * 
+ * @return 1 on success, 0 on error
+ */
+int b_tree_destroy ( b_tree **const pp_b_tree );
