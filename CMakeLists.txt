@@ -18,48 +18,68 @@ if (${IS_DEBUG_BUILD})
     add_compile_options(-Wall -Wextra -Wpedantic -Wpointer-arith -Wstrict-prototypes -Wformat-security -Wduplicated-cond -Wfloat-equal -Wshadow -Wconversion -Wjump-misses-init -Wlogical-not-parentheses -Wnull-dereference)
 endif ()
 
-# Find the sync module
-if ( NOT "${HAS_SYNC}")
+# Build sync with semaphore
+add_compile_definitions(BUILD_SYNC_WITH_SEMAPHORE)
 
-    # Log
-    message("[tree] Adding sync project")
-
-    # Add the sync directory
-    add_subdirectory(${CMAKE_SOURCE_DIR}/extern/sync ${CMAKE_SOURCE_DIR}/build/sync)
-
-    # Let any parent project know that this project has sync
-    set(HAS_SYNC true PARENT_SCOPE)
-endif()
+# Build sync with monitor
+add_compile_definitions(BUILD_SYNC_WITH_MONITOR)
 
 # Find the log module
 if ( NOT "${HAS_LOG}")
-
-    # Log
-    message("[tree] Adding log project")
-
+    
     # Add the log directory
     add_subdirectory(${CMAKE_SOURCE_DIR}/extern/log ${CMAKE_SOURCE_DIR}/build/log)
 
     # Let any parent project know that this project has log
-    set(HAS_LOG true PARENT_SCOPE)
+    if(NOT PROJECT_IS_TOP_LEVEL)
+        set(HAS_LOG true PARENT_SCOPE)
+        set(LOG_INCLUDE_DIR ${LOG_INCLUDE_DIR} PARENT_SCOPE)
+    endif()
 endif()
 
+# Find the sync module
+if ( NOT "${HAS_SYNC}")
+    
+    # Add the sync directory
+    add_subdirectory(${CMAKE_SOURCE_DIR}/extern/sync ${CMAKE_SOURCE_DIR}/build/sync)
+
+    # Let any parent project know that this project has sync
+    if(NOT PROJECT_IS_TOP_LEVEL)
+        set(HAS_SYNC true PARENT_SCOPE)
+        set(SYNC_INCLUDE_DIR ${SYNC_INCLUDE_DIR} PARENT_SCOPE)
+    endif()
+endif()
+
+# Find the tuple module
+if ( NOT "${HAS_TUPLE}")
+    
+    # Add the tuple directory
+    add_subdirectory(${CMAKE_SOURCE_DIR}/extern/tuple ${CMAKE_SOURCE_DIR}/build/tuple)
+
+    # Let any parent project know that this project has tuple
+    if(NOT PROJECT_IS_TOP_LEVEL)
+        set(HAS_TUPLE true PARENT_SCOPE)
+        set(TUPLE_INCLUDE_DIR ${TUPLE_INCLUDE_DIR} PARENT_SCOPE)
+    endif()
+endif()
 
 # Add the tree project
 if ( NOT "${HAS_TREE}")
 
-    # Log
-    message("[tree] Adding tree project")
+    set (TREE_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 
     # Let any parent project know that it has the tree project
-    set(HAS_TREE true PARENT_SCOPE)
+    if(NOT PROJECT_IS_TOP_LEVEL)
+        set(HAS_TREE true PARENT_SCOPE)
+        set(TREE_INCLUDE_DIR ${TREE_INCLUDE_DIR} PARENT_SCOPE)
+    endif()
 endif()
 
 # Add source to this project's executable.
 add_executable (tree_example "main.c")
-add_dependencies(tree_example tree)
-target_include_directories(tree_example PUBLIC include include/tree)
-target_link_libraries(tree_example tree)
+add_dependencies(tree_example tree tuple sync log)
+target_include_directories(tree_example PUBLIC ${TREE_INCLUDE_DIR} ${TUPLE_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR})
+target_link_libraries(tree_example tree tuple sync log)
 
 # Add source to the tester
 # add_executable (tree_test "tree_test.c")
@@ -68,7 +88,7 @@ target_link_libraries(tree_example tree)
 # target_link_libraries(tree_test sync tree)
 
 # Add source to this project's library
-add_library (tree SHARED "tree.c" "binary.c" "b.c" "redblack.c" "quad.c")
-add_dependencies(tree sync log)
-target_include_directories(tree PUBLIC include include/tree)
-target_link_libraries(tree sync log)
+add_library (tree SHARED "tree.c" "avl.c" "b.c" "binary.c" "quad.c" "rectangle.c" "redblack.c")
+add_dependencies(tree tuple sync log)
+target_include_directories(tree PUBLIC ${TREE_INCLUDE_DIR} ${TUPLE_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR})
+target_link_libraries(tree tuple sync log)
