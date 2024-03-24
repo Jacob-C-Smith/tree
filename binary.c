@@ -454,6 +454,15 @@ int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **
     }
 }
 
+int binary_tree_construct_file ( binary_tree **const pp_binary_tree, tree_equal_fn *pfn_is_equal, const char *p_path )
+{
+
+
+
+    // Success
+    return 1;
+}
+
 int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value )
 {
 
@@ -523,7 +532,7 @@ int binary_tree_search ( const binary_tree *const p_binary_tree, const void *con
         {
             no_binary_tree:
                 #ifndef NDEBUG
-                    printf("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__)
+                    printf("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error
@@ -615,7 +624,7 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
         if ( binary_tree_node_allocate(p_binary_tree, &p_node) == 0 ) goto failed_to_allocate_binary_tree_node;
 
         // Store the key
-        p_node->p_key   = (void *) p_key;
+        p_node->p_key = (void *) p_key;
 
         // Store the value
         p_node->p_value = (void *) p_value;
@@ -634,7 +643,7 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
         {
             no_binary_tree:
                 #ifndef NDEBUG
-                    printf("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__)
+                    printf("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error
@@ -849,7 +858,7 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
         {
             no_binary_tree:
                 #ifndef NDEBUG
-                    printf("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__)
+                    printf("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error
@@ -1068,29 +1077,38 @@ int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binar
     }
 }
 
-int binary_tree_serialize ( binary_tree *const p_binary_tree, FILE *p_file, binary_tree_serialize_fn *pfn_serialize_node )
+int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, binary_tree_serialize_fn *pfn_serialize_node )
 {
 
     // Argument check
     if ( p_binary_tree      == (void *) 0 ) goto no_binary_tree;
-    if ( p_file             == (void *) 0 ) goto no_file;
+    if ( p_path             == (void *) 0 ) goto no_file;
     if ( pfn_serialize_node == (void *) 0 ) goto no_serializer;
+
+    // Open the file
+    p_binary_tree->p_random_access = fopen(p_path, "wb+");
+
+    // Error check
+    if ( p_binary_tree->p_random_access == NULL ) goto failed_to_open_file;
 
     // Write the metadata
     {
 
         // Set the cursor to the start of the file
-        fseek(p_file, 0, SEEK_SET);
+        fseek(p_binary_tree->p_random_access, 0, SEEK_SET);
 
         // Write the quantity of nodes
-        fwrite(&p_binary_tree->metadata.node_quantity, sizeof(unsigned long long), 1, p_file);
+        fwrite(&p_binary_tree->metadata.node_quantity, sizeof(unsigned long long), 1, p_binary_tree->p_random_access);
 
         // Write the size of a node
-        fwrite(&p_binary_tree->metadata.node_size, sizeof(unsigned long long), 1, p_file);
+        fwrite(&p_binary_tree->metadata.node_size, sizeof(unsigned long long), 1, p_binary_tree->p_random_access);
     }
 
     // Write the root node
-    if ( binary_tree_serialize_node(p_file, p_binary_tree, p_binary_tree->p_root, pfn_serialize_node) == 0 ) return 0;
+    if ( binary_tree_serialize_node(p_binary_tree->p_random_access, p_binary_tree, p_binary_tree->p_root, pfn_serialize_node) == 0 ) return 0;
+
+    // Flush the file
+    fflush(p_binary_tree->p_random_access);
 
     // Success
     return 1;
@@ -1119,6 +1137,17 @@ int binary_tree_serialize ( binary_tree *const p_binary_tree, FILE *p_file, bina
             no_serializer:
                 #ifndef NDEBUG
                     printf("[tree] [binary] Null pointer provided for parameter \"pfn_serialize_node\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    
+        // Standard library errrors
+        {
+            failed_to_open_file:
+                #ifndef NDEBUG
+                    printf("[Standard Library] Failed to open file\n");
                 #endif
 
                 // Error
@@ -1192,6 +1221,9 @@ int binary_tree_destroy ( binary_tree **const pp_binary_tree )
 
     // Recursively free nodes
     if ( binary_tree_node_destroy(&p_binary_tree->p_root) == 0 ) goto failed_to_free_nodes;
+
+    // Close the file
+    if ( p_binary_tree->p_random_access ) fclose(p_binary_tree->p_random_access);
 
     // Success
     return 1;

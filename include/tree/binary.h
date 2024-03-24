@@ -1,5 +1,5 @@
 ﻿/** !
- * Include header for unbalanced binary search tree
+ * Include header for binary search tree
 
  * @file tree/binary.h 
  * 
@@ -70,6 +70,7 @@ struct binary_tree_node_s
 struct binary_tree_s
 {
     binary_tree_node *p_root;
+    FILE             *p_random_access;
 
     struct 
     {
@@ -160,12 +161,12 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, FILE *p_file, tree_e
  * Write a binary tree to a file
  * 
  * @param p_binary_tree      the binary tree 
- * @param p_file             the file
+ * @param p_path             path to the file
  * @param pfn_serialize_node a function for serializing nodes to the file
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_serialize ( binary_tree *const p_binary_tree, FILE *p_file, binary_tree_serialize_fn *pfn_serialize_node );
+int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, binary_tree_serialize_fn *pfn_serialize_node );
 
 // Destructors
 /** !
