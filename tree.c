@@ -8,6 +8,13 @@
 
 #include <tree/tree.h>
 
+int tree_init ( void )
+{
+
+    // Success
+    return 1;
+}
+
 int tree_compare_function ( const void *const a, const void *const b )
 {
     

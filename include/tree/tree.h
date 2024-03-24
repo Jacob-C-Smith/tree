@@ -31,16 +31,27 @@
 #endif
 
 // Type definitions
+
+/** !
+ *  @brief The type definition for a two dimensional vector
+ */ 
+typedef struct { double x, y; } tree_vec2;
+
 /** !
  *  @brief The type definition for a function that tests the equality of two nodes
  * 
  *  @param p_a pointer to a
  *  @param p_b pointer to b
  * 
- * @return 0 if a == b else -1 if A > B else 1
+ *  @return 0 if a == b else -1 if A > B else 1
  */
 typedef int (tree_equal_fn)(const void *const p_a, const void *const p_b);
 
+
+// Initializer
+int tree_init ( void ); 
+
+// Comparator
 /** !
  * Compare a to b
  * 
