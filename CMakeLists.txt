@@ -9,14 +9,16 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/extern/)
 
+# Compiler warnings
+add_compile_options(-Wall -Wextra -Wpointer-arith -Wstrict-prototypes -Wformat-security -Wduplicated-cond -Wfloat-equal -Wshadow -Wconversion -Wjump-misses-init -Wlogical-not-parentheses -Wnull-dereference)
+
 # Comment out for Debug mode
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-# Set for debug mode
-if (${IS_DEBUG_BUILD})
+# Set debug mode
+if (NOT ${IS_DEBUG_BUILD})
     add_compile_definitions(NDEBUG)
-    add_compile_options(-Wall -Wextra -Wpedantic -Wpointer-arith -Wstrict-prototypes -Wformat-security -Wduplicated-cond -Wfloat-equal -Wshadow -Wconversion -Wjump-misses-init -Wlogical-not-parentheses -Wnull-dereference)
-endif ()
+endif()
 
 # Build sync with semaphore
 add_compile_definitions(BUILD_SYNC_WITH_SEMAPHORE)
