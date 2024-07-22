@@ -23,6 +23,7 @@
 
 // Forward declarations
 struct binary_tree_s;
+struct binary_tree_parser_serializer_info_s;
 struct binary_tree_node_s;
 
 // Type definitions
@@ -55,7 +56,14 @@ typedef int (binary_tree_serialize_fn)(FILE *p_file, binary_tree_node *p_binary_
  * 
  *  @return 1 on success, 0 on error
  */
-typedef int (binary_tree_parse_fn)(FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, unsigned long long node_pointer );
+typedef int (binary_tree_parse_fn)(FILE *p_file, binary_tree_node *p_binary_tree_node );
+
+/** !
+ * TODO
+ * 
+ * 
+*/
+typedef int (binary_tree_traverse_fn)(binary_tree_node *p_binary_tree_node);
 
 // Struct definitions
 struct binary_tree_node_s
@@ -143,18 +151,35 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
  */
 int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const p_value );
 
+// Traversal
+/** !
+ */
+int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
+
+/** !
+ */
+int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
+
+/** !
+ */
+int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
+
+/** !
+ */
+int binary_tree_traverse_bfs ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
+
 // Parser
 /** !
  * Construct a binary tree from a file
  * 
  * @param pp_binary_tree return
- * @param p_file         the file
+ * @param p_file         path to the file
  * @param pfn_is_equal   function for testing equality of elements in set IF parameter is not null ELSE default
  * @param pfn_parse_node a function for parsing nodes from the file
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_parse ( binary_tree **const pp_binary_tree, FILE *p_file, tree_equal_fn *pfn_is_equal, binary_tree_parse_fn *pfn_parse_node );
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, tree_equal_fn *pfn_is_equal, binary_tree_parse_fn *pfn_parse_node );
 
 // Serializer
 /** !

@@ -67,6 +67,141 @@ int binary_tree_parse_function ( FILE *p_file, binary_tree *p_binary_tree, binar
 // TODO: 
 int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node *p_binary_tree_node, binary_tree_serialize_fn *pfn_binary_tree_serialize );
 
+// TODO:
+int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, binary_tree_parse_fn *pfn_binary_tree_parse );
+
+// TODO:
+int binary_tree_traverse_preorder_node ( binary_tree_node *p_binary_tree_node, binary_tree_traverse_fn *pfn_traverse )
+{
+
+    // Argument check
+    if ( p_binary_tree_node == (void *) 0 ) goto no_binary_tree_node;
+    if ( pfn_traverse       == (void *) 0 ) goto no_traverse_function;
+
+    // Root
+    pfn_traverse(p_binary_tree_node);
+
+    // Left
+    if ( p_binary_tree_node->p_left ) binary_tree_traverse_preorder_node(p_binary_tree_node->p_left, pfn_traverse);
+
+    // Right
+    if ( p_binary_tree_node->p_right ) binary_tree_traverse_preorder_node(p_binary_tree_node->p_right, pfn_traverse);
+
+    // Success
+    return 1;
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_binary_tree_node:
+                #ifndef NDEBUG
+                    log_error("[tree] [binary] Null pointer provided for parameter \"p_binary_tree_node\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+
+            no_traverse_function:
+                #ifndef NDEBUG
+                    log_error("[tree] [binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
+}
+
+// TODO:
+int binary_tree_traverse_inorder_node ( binary_tree_node *p_binary_tree_node, binary_tree_traverse_fn *pfn_traverse )
+{
+
+    // Argument check
+    if ( p_binary_tree_node == (void *) 0 ) goto no_binary_tree_node;
+    if ( pfn_traverse       == (void *) 0 ) goto no_traverse_function;
+
+    // Left
+    if ( p_binary_tree_node->p_left ) binary_tree_traverse_inorder_node(p_binary_tree_node->p_left, pfn_traverse);
+
+    // Root
+    pfn_traverse(p_binary_tree_node);
+
+    // Right
+    if ( p_binary_tree_node->p_right ) binary_tree_traverse_inorder_node(p_binary_tree_node->p_right, pfn_traverse);
+
+    // Success
+    return 1;
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_binary_tree_node:
+                #ifndef NDEBUG
+                    log_error("[tree] [binary] Null pointer provided for parameter \"p_binary_tree_node\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+
+            no_traverse_function:
+                #ifndef NDEBUG
+                    log_error("[tree] [binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
+}
+
+// TODO:
+int binary_tree_traverse_postorder_node ( binary_tree_node *p_binary_tree_node, binary_tree_traverse_fn *pfn_traverse )
+{
+
+    // Argument check
+    if ( p_binary_tree_node == (void *) 0 ) goto no_binary_tree_node;
+    if ( pfn_traverse       == (void *) 0 ) goto no_traverse_function;
+
+    // Left
+    if ( p_binary_tree_node->p_left ) binary_tree_traverse_postorder_node(p_binary_tree_node->p_left, pfn_traverse);
+
+    // Right
+    if ( p_binary_tree_node->p_right ) binary_tree_traverse_postorder_node(p_binary_tree_node->p_right, pfn_traverse);
+
+    // Root
+    pfn_traverse(p_binary_tree_node);
+
+    // Success
+    return 1;
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_binary_tree_node:
+                #ifndef NDEBUG
+                    log_error("[tree] [binary] Null pointer provided for parameter \"p_binary_tree_node\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+
+            no_traverse_function:
+                #ifndef NDEBUG
+                    log_error("[tree] [binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
+}
+
 /** !
  * Deallocate a binary tree node
  * 
@@ -452,15 +587,6 @@ int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **
                 return 0;
         }
     }
-}
-
-int binary_tree_construct_file ( binary_tree **const pp_binary_tree, tree_equal_fn *pfn_is_equal, const char *p_path )
-{
-
-
-
-    // Success
-    return 1;
 }
 
 int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value )
@@ -867,7 +993,30 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
     }
 }
 
-// TODO: Rewrite
+int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse )
+{
+
+
+    // Success
+    return 1;
+}
+
+int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse )
+{
+
+
+    // Success
+    return 1;
+}
+
+int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse )
+{
+
+
+    // Success
+    return 1;
+}
+
 int binary_tree_parse_function ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, unsigned long long node_pointer )
 {
 
@@ -923,7 +1072,7 @@ int binary_tree_parse_function ( FILE *p_file, binary_tree *p_binary_tree, binar
         return 0;
 }
 
-int binary_tree_parse ( binary_tree **const pp_binary_tree, FILE *p_file, tree_equal_fn *pfn_is_equal, binary_tree_parse_fn *pfn_parse_node )
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, tree_equal_fn *pfn_is_equal, binary_tree_parse_fn *pfn_parse_node )
 {
     
     // Argument check
@@ -935,25 +1084,29 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, FILE *p_file, tree_e
     binary_tree *p_binary_tree = 0;
     unsigned long long node_quantity = 0,
                        node_size     = 0;
-
-    // Allocate a binary tree
-    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, node_size) == 0 ) goto failed_to_construct_binary_tree;
+    FILE *p_f = fopen(p_file, "rw");
 
     // Read the metadata
     {
 
         // Set the cursor to the start of the file
-        fseek(p_file, 0, SEEK_SET);
+        fseek(p_f, 0, SEEK_SET);
 
-        // Write the quantity of nodes
-        fread(&node_quantity, sizeof(unsigned long long), 1, p_file);
+        // Read the quantity of nodes
+        fread(&node_quantity, sizeof(unsigned long long), 1, p_f);
 
-        // Write the size of a node
-        fread(&node_size, sizeof(unsigned long long), 1, p_file);
+        // Read the size of a node
+        fread(&node_size, sizeof(unsigned long long), 1, p_f);
     }
 
-    // Write the root node
-    if ( pfn_parse_node(p_file, p_binary_tree, &p_binary_tree->p_root, 0) == 0 ) return 0;
+    // Allocate a binary tree
+    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, node_size) == 0 ) goto failed_to_construct_binary_tree;
+
+    // Read the root node
+    if ( binary_tree_parse_node(p_f, p_binary_tree, &p_binary_tree->p_root, pfn_parse_node) == 0 ) goto failed_to_construct_binary_tree;
+
+    // Error check
+    if ( p_binary_tree->metadata.node_quantity != node_quantity ) goto failed_to_parse_binary_tree; 
 
     // Return a pointer to the caller
     *pp_binary_tree = p_binary_tree;
@@ -996,6 +1149,120 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, FILE *p_file, tree_e
             failed_to_construct_binary_tree:
                 #ifndef NDEBUG
                     printf("[tree] [binary] Failed to construct binary tree in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+
+            failed_to_parse_binary_tree:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Failed to parse binary tree in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
+}
+
+int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, binary_tree_parse_fn *pfn_binary_tree_parse )
+{
+
+    // Argument check
+    if ( p_file                == (void *) 0 ) goto no_file;
+    if ( p_binary_tree         == (void *) 0 ) goto no_binary_tree;
+    if ( pp_binary_tree_node   == (void *) 0 ) goto no_binary_tree_node;
+    if ( pfn_binary_tree_parse == (void *) 0 ) goto no_binary_tree_parser; 
+
+    // Initialized data
+    binary_tree_node *p_binary_tree_node = TREE_REALLOC(0, sizeof(binary_tree_node));
+    unsigned long long left_pointer, right_pointer;
+    
+    memset(p_binary_tree_node, 0, sizeof(binary_tree_node));
+
+    // User provided parsing function
+    pfn_binary_tree_parse(p_file, p_binary_tree_node);
+
+    // Store the left pointer
+    fread(&left_pointer, 8, 1, p_file);
+
+    // Store the right pointer
+    fread(&right_pointer, 8, 1, p_file);
+    
+    // State check
+    if ( left_pointer == 0 ) goto parse_right;
+
+    // Set the pointer correctly
+    fseek(p_file, (long) ( sizeof(p_binary_tree->metadata) + (left_pointer * ( p_binary_tree->metadata.node_size - 16 ))), SEEK_SET);
+
+    // Parse the left node
+    if ( binary_tree_parse_node(p_file, p_binary_tree, &p_binary_tree_node->p_left, pfn_binary_tree_parse) == 0 ) goto failed_to_parse_node;
+
+    parse_right:
+
+    // State check
+    if ( right_pointer == 0 ) goto done;
+
+    // Set the pointer correctly
+    fseek(p_file, (long) ( sizeof(p_binary_tree->metadata) + (right_pointer * ( p_binary_tree->metadata.node_size - 16 ))), SEEK_SET);
+
+    // Parse the right node
+    if ( binary_tree_parse_node(p_file, p_binary_tree, &p_binary_tree_node->p_right, pfn_binary_tree_parse) == 0 ) goto failed_to_parse_node;
+
+    done:
+
+    // Return a pointer to the caller
+    *pp_binary_tree_node = p_binary_tree_node;
+
+    // Increment the node quantity
+    p_binary_tree->metadata.node_quantity++;
+
+    // Success
+    return 1;
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_file:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Null pointer provided for parameter \"p_file\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+            
+            no_binary_tree:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+
+            no_binary_tree_node:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Null pointer provided for parameter \"p_binary_tree_node\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+            
+            no_binary_tree_parser:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Null pointer provided for parameter \"pfn_binary_tree_parse\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+
+        // Tree errors
+        {
+            failed_to_parse_node:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Failed to parse node in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error
@@ -1105,7 +1372,7 @@ int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path
     }
 
     // Write the root node
-    if ( binary_tree_serialize_node(p_binary_tree->p_random_access, p_binary_tree, p_binary_tree->p_root, pfn_serialize_node) == 0 ) return 0;
+    if ( binary_tree_serialize_node(p_binary_tree->p_random_access, p_binary_tree, p_binary_tree->p_root, pfn_serialize_node) == 0 ) goto failed_to_serialize_node;
 
     // Flush the file
     fflush(p_binary_tree->p_random_access);
@@ -1143,6 +1410,17 @@ int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path
                 return 0;
         }
     
+        // tree errors
+        {
+            failed_to_serialize_node:
+                #ifndef NDEBUG
+                    printf("[tree] [binary] Failed to serialize node in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+
         // Standard library errrors
         {
             failed_to_open_file:
