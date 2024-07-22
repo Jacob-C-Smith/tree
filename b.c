@@ -64,7 +64,7 @@ int b_tree_split_root ( b_tree *const p_b_tree )
     b_tree_node *p_new_root_node = (void *) 0;
 
     // Allocate a node
-    p_new_root_node = b_tree_node_allocate();
+    //p_new_root_node = b_tree_node_allocate();
 
     // TODO: Populate the new root node
 
@@ -72,7 +72,7 @@ int b_tree_split_root ( b_tree *const p_b_tree )
     p_b_tree->p_root = p_new_root_node;
 
     // Split the new root node
-    b_tree_split_child(p_b_tree->p_root, 0);
+    //b_tree_split_child(p_b_tree->p_root, 0);
 
     // Update the height
     p_b_tree->_metadata.height++;
@@ -152,19 +152,19 @@ int b_tree_write_meta_data ( const b_tree *const p_b_tree )
     fseek(p_b_tree->p_random_access, 0, SEEK_SET);
 
     // Write the quantity of keys
-    fwrite(p_b_tree->_metadata.key_quantity, sizeof(unsigned long long), 1, p_b_tree->p_random_access);
+    //fwrite(p_b_tree->_metadata.key_quantity, sizeof(unsigned long long), 1, p_b_tree->p_random_access);
 
     // Write the address of the root node
-    fwrite(p_b_tree->_metadata.root_address, sizeof(unsigned long long), 1, p_b_tree->p_random_access);
+    //fwrite(p_b_tree->_metadata.root_address, sizeof(unsigned long long), 1, p_b_tree->p_random_access);
 
     // Write the degree of the B tree
-    fwrite(p_b_tree->_metadata.degree, sizeof(int), 1, p_b_tree->p_random_access);
+    //fwrite(p_b_tree->_metadata.degree, sizeof(int), 1, p_b_tree->p_random_access);
 
     // Write the quantity of nodes in the B tree
-    fwrite(p_b_tree->_metadata.node_quantity, sizeof(int), 1, p_b_tree->p_random_access);
+    //fwrite(p_b_tree->_metadata.node_quantity, sizeof(int), 1, p_b_tree->p_random_access);
 
     // Write the height of the B tree
-    fwrite(p_b_tree->_metadata.height, sizeof(int), 1, p_b_tree->p_random_access);
+    //fwrite(p_b_tree->_metadata.height, sizeof(int), 1, p_b_tree->p_random_access);
 
     // Success
     return 1;
