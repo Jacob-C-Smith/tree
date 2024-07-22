@@ -478,7 +478,7 @@ int b_tree_insert ( b_tree *const p_b_tree, const void *const p_key, const void 
     }
 
     // Insert the key
-    b_tree_insert_not_full(p_b_tree->p_root, p_key, p_value);
+    //b_tree_insert_not_full(p_b_tree->p_root, p_key, p_value);
 
     // Success
     return 1;

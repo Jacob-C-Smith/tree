@@ -67,19 +67,19 @@ int rectangle_tree_write_meta_data ( const rectangle_tree *const p_rectangle_tre
     fseek(p_rectangle_tree->p_random_access, 0, SEEK_SET);
 
     // Write the quantity of keys
-    fwrite(p_rectangle_tree->metadata.key_quantity, sizeof(unsigned long long), 1, p_rectangle_tree->p_random_access);
+    // fwrite(p_rectangle_tree->metadata.key_quantity, sizeof(unsigned long long), 1, p_rectangle_tree->p_random_access);
 
     // Write the address of the root node
-    fwrite(p_rectangle_tree->metadata.root_address, sizeof(unsigned long long), 1, p_rectangle_tree->p_random_access);
+    // fwrite(p_rectangle_tree->metadata.root_address, sizeof(unsigned long long), 1, p_rectangle_tree->p_random_access);
 
     // Write the degree of the B tree
-    fwrite(p_rectangle_tree->metadata.degree, sizeof(int), 1, p_rectangle_tree->p_random_access);
+    // fwrite(p_rectangle_tree->metadata.degree, sizeof(int), 1, p_rectangle_tree->p_random_access);
 
     // Write the quantity of nodes in the B tree
-    fwrite(p_rectangle_tree->metadata.node_quantity, sizeof(int), 1, p_rectangle_tree->p_random_access);
+    // fwrite(p_rectangle_tree->metadata.node_quantity, sizeof(int), 1, p_rectangle_tree->p_random_access);
 
     // Write the height of the B tree
-    fwrite(p_rectangle_tree->metadata.height, sizeof(int), 1, p_rectangle_tree->p_random_access);
+    // fwrite(p_rectangle_tree->metadata.height, sizeof(int), 1, p_rectangle_tree->p_random_access);
 
     // Success
     return 1;

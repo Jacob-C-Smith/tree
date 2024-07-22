@@ -63,7 +63,7 @@ typedef int (binary_tree_parse_fn)(FILE *p_file, binary_tree_node *p_binary_tree
  * 
  * 
 */
-typedef int (binary_tree_traverse_fn)(binary_tree_node *p_binary_tree_node);
+typedef int (binary_tree_traverse_fn)(void *p_key, void *p_value);
 
 // Struct definitions
 struct binary_tree_node_s
@@ -153,15 +153,33 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
 
 // Traversal
 /** !
- */
+ * Traverse a binary tree using the pre order technique
+ * 
+ * @param p_binary_tree pointer to binary tree
+ * @param pfn_traverse  called for each node in the binary tree
+ * 
+ * @return 1 on success, 0 on error
+*/
 int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
 
 /** !
- */
+ * Traverse a binary tree using the in order technique
+ * 
+ * @param p_binary_tree pointer to binary tree
+ * @param pfn_traverse  called for each node in the binary tree
+ * 
+ * @return 1 on success, 0 on error
+*/
 int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
 
 /** !
- */
+ * Traverse a binary tree using the post order technique
+ * 
+ * @param p_binary_tree pointer to binary tree
+ * @param pfn_traverse  called for each node in the binary tree
+ * 
+ * @return 1 on success, 0 on error
+*/
 int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
 
 /** !
