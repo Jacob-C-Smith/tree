@@ -23,7 +23,6 @@
 
 // Forward declarations
 struct binary_tree_s;
-struct binary_tree_parser_serializer_info_s;
 struct binary_tree_node_s;
 
 // Type definitions
@@ -59,10 +58,13 @@ typedef int (binary_tree_serialize_fn)(FILE *p_file, binary_tree_node *p_binary_
 typedef int (binary_tree_parse_fn)(FILE *p_file, binary_tree_node *p_binary_tree_node );
 
 /** !
- * TODO
+ *  @brief The type definition for a function that is called on each node while traversing a tree
  * 
+ *  @param p_key   the key
+ *  @param p_value the value
  * 
-*/
+ *  @return 1 on success, 0 on error
+ */
 typedef int (binary_tree_traverse_fn)(void *p_key, void *p_value);
 
 // Struct definitions
@@ -181,10 +183,6 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree
  * @return 1 on success, 0 on error
 */
 int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
-
-/** !
- */
-int binary_tree_traverse_bfs ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
 
 // Parser
 /** !
