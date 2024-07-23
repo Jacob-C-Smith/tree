@@ -64,10 +64,19 @@ typedef int (b_tree_serialize_fn)(FILE *p_file, b_tree_node *p_b_tree_node);
  */
 typedef int (b_tree_parse_fn)(FILE *p_file, b_tree *p_b_tree, b_tree_node **pp_b_tree_node, unsigned long long node_pointer );
 
+/** !
+ *  @brief The type definition for a function that is called on each node while traversing a tree
+ * 
+ *  @param p_key   the key
+ *  @param p_value the value
+ * 
+ *  @return 1 on success, 0 on error
+ */
+typedef int (b_tree_traverse_fn)(void *p_key, void *p_value);
+
 // Struct definitions
 struct b_tree_node_s
-{ 
-
+{
     bool               leaf;
     int                key_quantity;
     unsigned long long node_pointer;
@@ -154,6 +163,37 @@ int b_tree_insert ( b_tree *const p_b_tree, const void *const p_key, const void 
  * @return 1 on success, 0 on error
  */
 int b_tree_remove ( b_tree *const p_b_tree, const void *const p_key, const void **const p_value );
+
+// Traversal
+/** !
+ * Traverse a b tree using the pre order technique
+ * 
+ * @param p_b_tree     pointer to b tree
+ * @param pfn_traverse called for each node in the b tree
+ * 
+ * @return 1 on success, 0 on error
+*/
+int binary_tree_traverse_preorder ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
+
+/** !
+ * Traverse a b tree using the in order technique
+ * 
+ * @param p_b_tree     pointer to b tree
+ * @param pfn_traverse called for each node in the b tree
+ * 
+ * @return 1 on success, 0 on error
+*/
+int binary_tree_traverse_inorder ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
+
+/** !
+ * Traverse a b tree using the post order technique
+ * 
+ * @param p_b_tree     pointer to b tree
+ * @param pfn_traverse called for each node in the b tree
+ * 
+ * @return 1 on success, 0 on error
+*/
+int binary_tree_traverse_postorder ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
 
 // Parser
 /** !
