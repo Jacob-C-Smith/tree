@@ -10,3 +10,6 @@ Icon?
 CMakeCache.txt
 Makefile
 cmake_install.cmake
+!build/resources
+resources/output.b_tree
+resources/output.binary_tree
