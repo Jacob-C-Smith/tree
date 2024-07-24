@@ -77,17 +77,20 @@ typedef int (b_tree_traverse_fn)(void *p_key, void *p_value);
 // Struct definitions
 struct b_tree_node_s
 {
-    bool               leaf;
-    int                key_quantity;
-    unsigned long long node_pointer;
+    bool                leaf;
+    int                 key_quantity;
+    unsigned long long  node_pointer;
+    void               **properties;
+    unsigned long long _child_pointers[];
 };
 
 struct b_tree_metadata_s
 {
     unsigned long long node_quantity,
-                       root_address;
+                       root_address,
+                       next_disk_address,
+                       key_quantity;
     int node_size,
-        key_quantity,
         degree,
         height;
 };
@@ -145,13 +148,12 @@ int b_tree_search ( const b_tree *const p_b_tree, const void *const p_key, const
 /** !
  * Insert a property into a b tree
  * 
- * @param p_b_tree the b tree
- * @param p_key    the property key
- * @param p_value  the property value
+ * @param p_b_tree   the b tree
+ * @param p_property the property
  * 
  * @return 1 on success, 0 on error
  */
-int b_tree_insert ( b_tree *const p_b_tree, const void *const p_key, const void *const p_value );
+int b_tree_insert ( b_tree *const p_b_tree, const void *const p_property );
 
 /** !
  * Remove an element from a b tree
@@ -173,7 +175,7 @@ int b_tree_remove ( b_tree *const p_b_tree, const void *const p_key, const void 
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_preorder ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
+int b_tree_traverse_preorder ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
 
 /** !
  * Traverse a b tree using the in order technique
@@ -183,7 +185,7 @@ int binary_tree_traverse_preorder ( b_tree *const p_b_tree, b_tree_traverse_fn *
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_inorder ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
+int b_tree_traverse_inorder ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
 
 /** !
  * Traverse a b tree using the post order technique
@@ -193,7 +195,7 @@ int binary_tree_traverse_inorder ( b_tree *const p_b_tree, b_tree_traverse_fn *p
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_postorder ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
+int b_tree_traverse_postorder ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
 
 // Parser
 /** !
