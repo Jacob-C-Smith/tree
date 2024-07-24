@@ -79,9 +79,9 @@ struct binary_tree_node_s
 
 struct binary_tree_s
 {
+    mutex _lock;
     binary_tree_node *p_root;
     FILE             *p_random_access;
-
     struct 
     {
         tree_equal_fn            *pfn_is_equal;
@@ -95,16 +95,6 @@ struct binary_tree_s
         unsigned long long node_size;
     } metadata;
 };
-
-// Allocators
-/** !
- * Allocate memory for a binary tree
- * 
- * @param pp_binary_tree return
- * 
- * @return 1 on success, 0 on error
- */
-int binary_tree_create ( binary_tree **const pp_binary_tree );
 
 // Constructors
 /** !

@@ -14,6 +14,15 @@ static const unsigned long long eight_bytes_of_zero = 0;
 
 // Forward declarations
 /** !
+ * Allocate memory for a binary tree
+ * 
+ * @param pp_binary_tree return
+ * 
+ * @return 1 on success, 0 on error
+ */
+int binary_tree_create ( binary_tree **const pp_binary_tree );
+
+/** !
  * Allocate memory for a binary tree node
  * 
  * @param pp_binary_tree_node return
@@ -227,7 +236,7 @@ int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **p
     // Argument check
     if ( p_binary_tree       == (void *) 0 ) goto no_binary_tree;
     if ( pp_binary_tree_node == (void *) 0 ) goto no_binary_tree_node;
-
+    
     // Initialized data
     binary_tree_node *p_binary_tree_node = (void *) 0;
 
@@ -275,6 +284,9 @@ int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **p
                     printf("[tree] Call to function \"binary_tree_node_create\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
+                // Unlock
+                mutex_unlock(&p_binary_tree->_lock);
+                
                 // Error
                 return 0;
         }
@@ -307,6 +319,9 @@ int binary_tree_construct ( binary_tree **const pp_binary_tree, tree_equal_fn *p
             .node_size     = node_size + ( 2 * sizeof(unsigned long long) )
         }
     };
+
+    // Construct a lock
+    mutex_create(&p_binary_tree->_lock);
 
     // Return a pointer to the caller
     *pp_binary_tree = p_binary_tree;
@@ -508,6 +523,9 @@ int binary_tree_search ( const binary_tree *const p_binary_tree, const void *con
     // Argument check
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
 
+    // Lock
+    mutex_lock(&p_binary_tree->_lock);
+
     // State check
     if ( p_binary_tree->p_root == (void *) 0 ) return 0;
 
@@ -535,6 +553,9 @@ int binary_tree_search ( const binary_tree *const p_binary_tree, const void *con
             goto try_again;
         }
 
+        // Unlock
+        mutex_unlock(&p_binary_tree->_lock);
+        
         // Error
         return 0;
     }
@@ -554,12 +575,18 @@ int binary_tree_search ( const binary_tree *const p_binary_tree, const void *con
             goto try_again;
         }
 
+        // Unlock
+        mutex_unlock(&p_binary_tree->_lock);
+    
         // Error
         return 0;
     }
 
     // Return a pointer to the caller
     *pp_value = p_node->p_value;
+
+    // Unlock
+    mutex_unlock(&p_binary_tree->_lock);
 
     // Success
     return 1;
@@ -585,6 +612,9 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
 
     // Argument check
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
+
+    // Lock
+    mutex_lock(&p_binary_tree->_lock);
 
     // Initialized data
     binary_tree_node *p_node = p_binary_tree->p_root;
@@ -649,6 +679,9 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
         
     }
 
+    // Unlock
+    mutex_unlock(&p_binary_tree->_lock);
+
     // Success
     return 1;
 
@@ -671,6 +704,9 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
         // Store the node as the root of the tree
         p_binary_tree->p_root = p_node;
 
+        // Unlock
+        mutex_unlock(&p_binary_tree->_lock);
+        
         // Success
         return 1;
     }
@@ -696,6 +732,9 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
                     printf("[tree] [binary] Failed to allocate binary tree node in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
+                // Unlock
+                mutex_unlock(&p_binary_tree->_lock);
+                
                 // Error
                 return 0;
         }
@@ -707,6 +746,9 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
 
     // Argument check
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
+
+    // Lock
+    mutex_lock(&p_binary_tree->_lock);
 
     // State check
     if ( p_binary_tree->p_root == (void *) 0 ) return 0;
@@ -769,6 +811,9 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
 
     // Return a pointer to the caller
     *pp_value = p_value;
+
+    // Unlock
+    mutex_unlock(&p_binary_tree->_lock);
 
     // Success
     return 1;
@@ -1042,8 +1087,14 @@ int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, binary_tre
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
     if ( pfn_traverse  == (void *) 0 ) goto no_traverse_function;
 
+    // Lock
+    mutex_lock(&p_binary_tree->_lock);
+
     // Traverse the tree
     if ( binary_tree_traverse_preorder_node(p_binary_tree->p_root, pfn_traverse) == 0 ) goto failed_to_traverse_binary_tree;    
+
+    // Unlock
+    mutex_unlock(&p_binary_tree->_lock);
 
     // Success
     return 1;
@@ -1063,7 +1114,7 @@ int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, binary_tre
 
             no_traverse_function:
                 #ifndef NDEBUG
-                    log_error("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tree] [binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error
@@ -1090,8 +1141,14 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
     if ( pfn_traverse  == (void *) 0 ) goto no_traverse_function;
 
+    // Lock
+    mutex_lock(&p_binary_tree->_lock);
+
     // Traverse the tree
     if ( binary_tree_traverse_inorder_node(p_binary_tree->p_root, pfn_traverse) == 0 ) goto failed_to_traverse_binary_tree;    
+
+    // Unlock
+    mutex_unlock(&p_binary_tree->_lock);
 
     // Success
     return 1;
@@ -1111,7 +1168,7 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree
 
             no_traverse_function:
                 #ifndef NDEBUG
-                    log_error("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tree] [binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error
@@ -1139,8 +1196,14 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tr
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
     if ( pfn_traverse  == (void *) 0 ) goto no_traverse_function;
 
+    // Lock
+    mutex_lock(&p_binary_tree->_lock);
+
     // Traverse the tree
     if ( binary_tree_traverse_postorder_node(p_binary_tree->p_root, pfn_traverse) == 0 ) goto failed_to_traverse_binary_tree;    
+
+    // Unlock
+    mutex_unlock(&p_binary_tree->_lock);
 
     // Success
     return 1;
@@ -1160,7 +1223,7 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tr
 
             no_traverse_function:
                 #ifndef NDEBUG
-                    log_error("[tree] [binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tree] [binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error
@@ -1460,6 +1523,9 @@ int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path
     if ( p_path             == (void *) 0 ) goto no_file;
     if ( pfn_serialize_node == (void *) 0 ) goto no_serializer;
 
+    // Lock
+    mutex_lock(&p_binary_tree->_lock);
+
     // Open the file
     p_binary_tree->p_random_access = fopen(p_path, "wb+");
 
@@ -1484,6 +1550,9 @@ int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path
 
     // Flush the file
     fflush(p_binary_tree->p_random_access);
+
+    // Unlock
+    mutex_unlock(&p_binary_tree->_lock);
 
     // Success
     return 1;
@@ -1561,7 +1630,7 @@ int binary_tree_node_destroy ( binary_tree_node **const pp_binary_tree_node )
     if ( binary_tree_node_destroy(&p_binary_tree_node->p_right) == 0 ) goto failed_to_free;
 
     // Free the node
-    (void) TREE_REALLOC(p_binary_tree_node, 0);
+    p_binary_tree_node = TREE_REALLOC(p_binary_tree_node, 0);
 
     // Success
     return 1;
@@ -1605,11 +1674,26 @@ int binary_tree_destroy ( binary_tree **const pp_binary_tree )
     // Fast exit
     if ( p_binary_tree == (void *) 0 ) return 1;
 
+    // Lock
+    mutex_lock(&p_binary_tree->_lock);
+
+    // No more pointer for caller
+    *pp_binary_tree = (void *) 0;
+
+    // Unlock
+    mutex_unlock(&p_binary_tree->_lock);
+
     // Recursively free nodes
     if ( binary_tree_node_destroy(&p_binary_tree->p_root) == 0 ) goto failed_to_free_nodes;
 
     // Close the file
     if ( p_binary_tree->p_random_access ) fclose(p_binary_tree->p_random_access);
+
+    // Destroy the lock
+    mutex_destroy(&p_binary_tree->_lock);
+
+    // Release the tree
+    p_binary_tree = TREE_REALLOC(p_binary_tree, 0);
 
     // Success
     return 1;
