@@ -214,7 +214,7 @@ int main ( int argc, const char *argv[] )
     if ( examples_to_run[TREE_EXAMPLE_B] )
 
         // Error check
-        if ( tree_b_example(argc, argv) == 0 ) goto failed_to_run_b_tree_example;
+        //if ( tree_b_example(argc, argv) == 0 ) goto failed_to_run_b_tree_example;
         
     // Run the binary tree example program
     if ( examples_to_run[TREE_EXAMPLE_BINARY] )
@@ -405,36 +405,55 @@ int tree_b_example ( int argc, const char *argv[] )
     log_info("╭────────────────╮\n");
     log_info("│ B tree example │\n");
     log_info("╰────────────────╯\n");
-    printf("This example creates a B tree from the DNA of E. Coli\n\n");
+    printf(
+        "This example creates a B tree from an E. Coli genome. Each property stores a \n"\
+        "nucleotide sequence of length 8. The B tree is serialized to the disk, loaded,\n"\
+        "and the most frequent nucleotide sequences are printed to standard out\n\n"
+    );
     
     // Initialized data
-    b_tree *p_b_tree = { 0 };
+    b_tree *p_b_tree = (void *) 0;
+
+    remove("resources/output.b_tree");
 
     // Construct a B tree
-    //if ( b_tree_construct(&p_b_tree, "output.b_tree", 0, 3, 64) == 0 ) goto failed_to_create_b_tree;
+    if ( b_tree_construct(&p_b_tree, "resources/output.b_tree", 0, 2, 64) == 0 ) goto failed_to_create_b_tree;
 
-    // Add data to the B tree
-    //goto add_e_coli_genome;
+    b_tree_insert(p_b_tree, (void *) 1);
+    b_tree_insert(p_b_tree, (void *) 2);
+    b_tree_insert(p_b_tree, (void *) 3);
+    b_tree_insert(p_b_tree, (void *) 4);
+    b_tree_insert(p_b_tree, (void *) 5);
+    b_tree_insert(p_b_tree, (void *) 6);
+    b_tree_traverse_inorder(p_b_tree, (void *)1);
 
-    // Done
-    done_adding_genome:
+    return 1;
 
-    // Print the quantity of keys in the B tree
-    //printf("%d\n", b_tree_insert(p_b_tree, 1, 1));
+    // Example
+    {
+        // Add data to the B tree
+        //goto add_e_coli_genome;
 
-    // Write the B tree to the disk
-    // if ( b_tree_flush(p_b_tree) == 0 ) goto failed_to_flush_b_tree;
+        // Done
+        //done_adding_genome:
 
-    // Destroy the B tree
-    // if ( b_tree_destroy(&p_b_tree) == 0 ) goto failed_to_destroy_b_tree;
+        // Print the quantity of keys in the B tree
+        //printf("%d\n", b_tree_insert(p_b_tree, 1, 1));
 
-    // Load the B tree
-    // if ( b_tree_load(&p_b_tree, "output.b_tree") == 0 ) goto failed_to_load_b_tree;
+        // Write the B tree to the disk
+        // if ( b_tree_flush(p_b_tree) == 0 ) goto failed_to_flush_b_tree;
 
-    // Query the B tree
-    //
-    
-    // TODO: More stuff
+        // Destroy the B tree
+        // if ( b_tree_destroy(&p_b_tree) == 0 ) goto failed_to_destroy_b_tree;
+
+        // Load the B tree
+        // if ( b_tree_load(&p_b_tree, "output.b_tree") == 0 ) goto failed_to_load_b_tree;
+
+        // Query the B tree
+        //
+        
+        // TODO: More stuff
+    }
 
     // Success
     return 1;
@@ -443,37 +462,37 @@ int tree_b_example ( int argc, const char *argv[] )
     add_e_coli_genome:
     {
 
-        // Initialized data
-        size_t file_size = load_file("../ecoli.genome", 0, false);
-        unsigned long long sequence_id = 0;
-        char  _buffer[B_TREE_EXAMPLE_SEQUENCE_LENGTH + 1] = { 0 },
-             *file_contents = TREE_REALLOC(0, file_size);
+        // // Initialized data
+        // size_t file_size = load_file("resources/ecoli.genome", 0, false);
+        // unsigned long long sequence_id = 0;
+        // char  _buffer[B_TREE_EXAMPLE_SEQUENCE_LENGTH + 1] = { 0 },
+        //      *file_contents = TREE_REALLOC(0, file_size);
 
-        // Error check
-        if ( file_contents == (void *) 0 ) goto failed_to_load_file;
+        // // Error check
+        // if ( file_contents == (void *) 0 ) goto failed_to_load_file;
 
-        // Read the file
-        load_file("../ecoli.genome", file_contents, false);
+        // // Read the file
+        // load_file("resources/ecoli.genome", file_contents, false);
 
-        // Iterate through the file
-        for (size_t i = 0; i < file_size - B_TREE_EXAMPLE_SEQUENCE_LENGTH; i++)
-        {
+        // // Iterate through the file
+        // for (size_t i = 0; i < file_size - B_TREE_EXAMPLE_SEQUENCE_LENGTH; i++)
+        // {
 
-            // Examine the next N bases
-            for (size_t j = 0; j < B_TREE_EXAMPLE_SEQUENCE_LENGTH; j++)
+        //     // Examine the next N bases
+        //     for (size_t j = 0; j < B_TREE_EXAMPLE_SEQUENCE_LENGTH; j++)
 
-                // Store the character
-                _buffer[j] = file_contents[i + j];
+        //         // Store the character
+        //         _buffer[j] = file_contents[i + j];
             
-            // Produce a value from the sequence
-            ascii_to_u64_encoded_2_bit_slice(_buffer, &sequence_id);
+        //     // Produce a value from the sequence
+        //     ascii_to_u64_encoded_2_bit_slice(_buffer, &sequence_id);
 
-            // Insert the property into the B tree
-            //b_tree_insert(p_b_tree, sequence_id, sequence_id);
-        }
+        //     // Insert the property into the B tree
+        //     b_tree_insert(p_b_tree, (void *)sequence_id, (void *)sequence_id);
+        // }
         
-        // Done
-        goto done_adding_genome;
+        // // Done
+        // goto done_adding_genome;
     }
 
     // TODO: 
@@ -511,7 +530,7 @@ int tree_binary_example ( int argc, const char *argv[] )
 
     // Initialized data
     binary_tree *p_binary_tree = 0;
-    size_t random_index = 0;
+    size_t random_index = ( rand() % 15 ) + 1;
     char *p_result = 0;
     char *values [BINARY_TREE_EXAMPLE_LIST_LENGTH] =
     { 
@@ -536,16 +555,13 @@ int tree_binary_example ( int argc, const char *argv[] )
         (void) binary_tree_insert(p_binary_tree, (const void *const) keys[i], (const void *const) values[i]);
 
     // Log
-    printf("DONE\nPrinting tree...\n\n");
-    
-    // Traverse the binary tree using the in order technique
-    binary_tree_traverse_inorder(p_binary_tree, (binary_tree_traverse_fn *)binary_tree_print_node);
-
-    // Log
-    printf("\nDONE\nSerializing tree... ");
+    printf("DONE\nSerializing tree... ");
 
     // Serialize the binary tree to a file
-    if ( binary_tree_serialize(p_binary_tree, "../output.binary_tree", binary_tree_example_serializer) == 0 ) goto failed_to_serialize_binary_tree;
+    if ( binary_tree_serialize(p_binary_tree, "resources/output.binary_tree", binary_tree_example_serializer) == 0 ) goto failed_to_serialize_binary_tree;
+
+    // Log
+    printf("DONE\nDestroying tree... ");
 
     // Destroy the binary tree
     if ( binary_tree_destroy(&p_binary_tree) == 0 ) goto failed_to_destroy_binary_tree;
@@ -554,16 +570,19 @@ int tree_binary_example ( int argc, const char *argv[] )
     printf("DONE\nParsing tree... ");
 
     // Load the binary tree from the file
-    if ( binary_tree_parse(&p_binary_tree, "../output.binary_tree", 0, (binary_tree_parse_fn *) binary_tree_example_parser) == 0 ) goto failed_to_parse_binary_tree;
-
-    // Compute a random key to search for
-    random_index = ( rand() % 15 ) + 1;
+    if ( binary_tree_parse(&p_binary_tree, "resources/output.binary_tree", 0, (binary_tree_parse_fn *) binary_tree_example_parser) == 0 ) goto failed_to_parse_binary_tree;
+    
+    // Log
+    printf("DONE\nPrinting tree... \n\n");
+    
+    // Traverse the binary tree using the in order technique
+    binary_tree_traverse_inorder(p_binary_tree, (binary_tree_traverse_fn *)binary_tree_print_node);
 
     // Query the binary tree
     if ( binary_tree_search(p_binary_tree, (void *) random_index, &p_result) == 0 ) goto failed_to_search_binary_tree;
 
     // Print the random index
-    printf("DONE\n\nSearching \"%d\" yields \"%s\"\n\n", random_index, p_result);
+    printf("\nDONE\n\nSearching \"%d\" yields \"%s\"\n\n", random_index, p_result);
 
     // Success
     return 1;
