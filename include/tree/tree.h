@@ -45,7 +45,7 @@ typedef struct { double x, y; } tree_vec2;
  * 
  *  @return 0 if a == b else -1 if A > B else 1
  */
-typedef int (tree_equal_fn)(const void *const p_a, const void *const p_b);
+typedef int (fn_tree_equal)(const void *const p_a, const void *const p_b);
 
 
 // Initializer

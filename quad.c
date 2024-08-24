@@ -164,7 +164,7 @@ int quad_tree_node_allocate ( quad_tree *p_quad_tree, quad_tree_node **pp_quad_t
     }
 }
 
-int quad_tree_construct ( quad_tree **const pp_quad_tree, tree_equal_fn *pfn_is_equal, unsigned long long node_size )
+int quad_tree_construct ( quad_tree **const pp_quad_tree, fn_tree_equal *pfn_is_equal, unsigned long long node_size )
 {
 
     // Argument check

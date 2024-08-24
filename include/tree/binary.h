@@ -44,7 +44,7 @@ typedef struct binary_tree_node_s binary_tree_node;
  * 
  *  @return 1 on success, 0 on error
  */
-typedef int (binary_tree_serialize_fn)(FILE *p_file, binary_tree_node *p_binary_tree_node);
+typedef int (fn_binary_tree_serialize)(FILE *p_file, binary_tree_node *p_binary_tree_node);
 
 /** !
  *  @brief The type definition for a function that parses a node from a file
@@ -55,7 +55,7 @@ typedef int (binary_tree_serialize_fn)(FILE *p_file, binary_tree_node *p_binary_
  * 
  *  @return 1 on success, 0 on error
  */
-typedef int (binary_tree_parse_fn)(FILE *p_file, binary_tree_node *p_binary_tree_node );
+typedef int (fn_binary_tree_parse)(FILE *p_file, binary_tree_node *p_binary_tree_node );
 
 /** !
  *  @brief The type definition for a function that is called on each node while traversing a tree
@@ -84,9 +84,9 @@ struct binary_tree_s
     FILE             *p_random_access;
     struct 
     {
-        tree_equal_fn            *pfn_is_equal;
-        binary_tree_serialize_fn *pfn_serialize_node;
-        binary_tree_parse_fn     *pfn_parse_node;
+        fn_tree_equal            *pfn_is_equal;
+        fn_binary_tree_serialize *pfn_serialize_node;
+        fn_binary_tree_parse     *pfn_parse_node;
     } functions;
 
     struct 
@@ -106,7 +106,7 @@ struct binary_tree_s
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_construct ( binary_tree **const pp_binary_tree, tree_equal_fn *pfn_is_equal, unsigned long long node_size );
+int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, unsigned long long node_size );
 
 // Accessors
 /** !
@@ -185,7 +185,7 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tr
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, tree_equal_fn *pfn_is_equal, binary_tree_parse_fn *pfn_parse_node );
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_binary_tree_parse *pfn_parse_node );
 
 // Serializer
 /** !
@@ -197,7 +197,7 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, 
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, binary_tree_serialize_fn *pfn_serialize_node );
+int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, fn_binary_tree_serialize *pfn_serialize_node );
 
 // Destructors
 /** !

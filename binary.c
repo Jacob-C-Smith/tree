@@ -55,7 +55,7 @@ int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **p
  * @param node_size         the size of a serialized node in bytes
  * 
 */
-int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_keys, void **pp_values, size_t property_quantity, tree_equal_fn *pfn_is_equal, unsigned long long node_size );
+int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_keys, void **pp_values, size_t property_quantity, fn_tree_equal *pfn_is_equal, unsigned long long node_size );
 
 /** !
  * Recursively construct a balanced binary search tree from a sorted list of keys and values
@@ -80,7 +80,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
  * 
  * @return 1 on success, 0 on error 
  */
-int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node *p_binary_tree_node, binary_tree_serialize_fn *pfn_binary_tree_serialize );
+int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node *p_binary_tree_node, fn_binary_tree_serialize *pfn_binary_tree_serialize );
 
 /** !
  * Recursively parse binary tree nodes from a file
@@ -92,7 +92,7 @@ int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binar
  * 
  * @return 1 on success, 0 on error 
  */
-int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, binary_tree_parse_fn *pfn_binary_tree_parse );
+int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, fn_binary_tree_parse *pfn_binary_tree_parse );
 
 /** !
  * Traverse a binary tree using the pre order technique
@@ -293,7 +293,7 @@ int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **p
     }
 }
 
-int binary_tree_construct ( binary_tree **const pp_binary_tree, tree_equal_fn *pfn_is_equal, unsigned long long node_size )
+int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, unsigned long long node_size )
 {
 
     // Argument check
@@ -454,7 +454,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
     }
 }
 
-int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_keys, void **pp_values, size_t property_quantity, tree_equal_fn *pfn_is_equal, unsigned long long node_size )
+int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_keys, void **pp_values, size_t property_quantity, fn_tree_equal *pfn_is_equal, unsigned long long node_size )
 {
 
     // Argument check
@@ -1243,7 +1243,7 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tr
     }
 }
 
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, tree_equal_fn *pfn_is_equal, binary_tree_parse_fn *pfn_parse_node )
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_binary_tree_parse *pfn_parse_node )
 {
     
     // Argument check
@@ -1336,7 +1336,7 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, 
     }
 }
 
-int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, binary_tree_parse_fn *pfn_binary_tree_parse )
+int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node, fn_binary_tree_parse *pfn_binary_tree_parse )
 {
 
     // Argument check
@@ -1442,7 +1442,7 @@ int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tr
     }
 }
 
-int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node *p_binary_tree_node, binary_tree_serialize_fn *pfn_binary_tree_serialize )
+int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tree_node *p_binary_tree_node, fn_binary_tree_serialize *pfn_binary_tree_serialize )
 {
 
     // Argument check
@@ -1515,7 +1515,7 @@ int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binar
     }
 }
 
-int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, binary_tree_serialize_fn *pfn_serialize_node )
+int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, fn_binary_tree_serialize *pfn_serialize_node )
 {
 
     // Argument check

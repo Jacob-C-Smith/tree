@@ -75,7 +75,7 @@ struct rectangle_tree_s
 
     struct 
     {
-        tree_equal_fn       *pfn_is_equal;
+        fn_tree_equal       *pfn_is_equal;
         rectangle_tree_serialize_fn *pfn_serialize_node;
         rectangle_tree_parse_fn     *pfn_parse_node;
     } functions;
@@ -112,7 +112,7 @@ int rectangle_tree_create ( rectangle_tree **const pp_rectangle_tree );
  * 
  * @return 1 on success, 0 on error
  */
-int rectangle_tree_construct ( rectangle_tree **const pp_rectangle_tree, tree_equal_fn *pfn_is_equal, int degree, unsigned long long node_size );
+int rectangle_tree_construct ( rectangle_tree **const pp_rectangle_tree, fn_tree_equal *pfn_is_equal, int degree, unsigned long long node_size );
 
 // Accessors
 /** !
@@ -160,7 +160,7 @@ int rectangle_tree_remove ( rectangle_tree *const p_rectangle_tree, const void *
  * 
  * @return 1 on success, 0 on error
  */
-int rectangle_tree_parse ( rectangle_tree **const pp_rectangle_tree, FILE *p_file, tree_equal_fn *pfn_is_equal, rectangle_tree_parse_fn *pfn_parse_node );
+int rectangle_tree_parse ( rectangle_tree **const pp_rectangle_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, rectangle_tree_parse_fn *pfn_parse_node );
 
 // Serializer
 /** !

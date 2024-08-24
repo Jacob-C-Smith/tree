@@ -242,7 +242,7 @@ int b_tree_create ( b_tree **const pp_b_tree )
     }
 }
 
-int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, tree_equal_fn *pfn_is_equal, int degree, unsigned long long node_size )
+int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_tree_equal *pfn_is_equal, int degree, unsigned long long node_size )
 {
 
     // Argument check
@@ -1223,7 +1223,7 @@ int b_tree_traverse_inorder ( b_tree *p_b_tree, b_tree_traverse_fn *pfn_traverse
     }
 }
 
-int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, tree_equal_fn *pfn_is_equal, b_tree_parse_fn *pfn_parse_node )
+int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, b_tree_parse_fn *pfn_parse_node )
 {
     
     // Success

@@ -78,7 +78,7 @@ struct quad_tree_s
 
     struct 
     {
-        tree_equal_fn          *pfn_is_equal;
+        fn_tree_equal          *pfn_is_equal;
         quad_tree_serialize_fn *pfn_serialize_node;
         quad_tree_parse_fn     *pfn_parse_node;
     } functions;
@@ -110,7 +110,7 @@ int quad_tree_create ( quad_tree **const pp_quad_tree );
  * 
  * @return 1 on success, 0 on error
  */
-int quad_tree_construct ( quad_tree **const pp_quad_tree, tree_equal_fn *pfn_is_equal, unsigned long long node_size );
+int quad_tree_construct ( quad_tree **const pp_quad_tree, fn_tree_equal *pfn_is_equal, unsigned long long node_size );
 
 // Accessors
 /** !
@@ -158,7 +158,7 @@ int quad_tree_remove ( quad_tree *const p_quad_tree, const void *const p_key, co
  * 
  * @return 1 on success, 0 on error
  */
-int quad_tree_parse ( quad_tree **const pp_quad_tree, FILE *p_file, tree_equal_fn *pfn_is_equal, quad_tree_parse_fn *pfn_parse_node );
+int quad_tree_parse ( quad_tree **const pp_quad_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, quad_tree_parse_fn *pfn_parse_node );
 
 // Serializer
 /** !

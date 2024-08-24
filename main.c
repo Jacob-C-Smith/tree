@@ -570,7 +570,7 @@ int tree_binary_example ( int argc, const char *argv[] )
     printf("DONE\nParsing tree... ");
 
     // Load the binary tree from the file
-    if ( binary_tree_parse(&p_binary_tree, "resources/output.binary_tree", 0, (binary_tree_parse_fn *) binary_tree_example_parser) == 0 ) goto failed_to_parse_binary_tree;
+    if ( binary_tree_parse(&p_binary_tree, "resources/output.binary_tree", 0, (fn_binary_tree_parse *) binary_tree_example_parser) == 0 ) goto failed_to_parse_binary_tree;
     
     // Log
     printf("DONE\nPrinting tree... \n\n");
