@@ -1128,6 +1128,9 @@ int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, binary_tre
                     log_error("[tree] [binary] Failed to traverse binary tree in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
+                // Unlock
+                mutex_unlock(&p_binary_tree->_lock);
+                
                 // Error
                 return 0;
         }
@@ -1181,6 +1184,9 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree
                 #ifndef NDEBUG
                     log_error("[tree] [binary] Failed to traverse binary tree in call to function \"%s\"\n", __FUNCTION__);
                 #endif
+                
+                // Unlock
+                mutex_unlock(&p_binary_tree->_lock);
                 
                 // Error
                 return 0;
@@ -1236,6 +1242,9 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tr
                 #ifndef NDEBUG
                     log_error("[tree] [binary] Failed to traverse binary tree in call to function \"%s\"\n", __FUNCTION__);
                 #endif
+                
+                // Unlock
+                mutex_unlock(&p_binary_tree->_lock);
                 
                 // Error
                 return 0;
