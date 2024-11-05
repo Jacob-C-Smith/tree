@@ -13,3 +13,4 @@ cmake_install.cmake
 !build/resources
 resources/output.b_tree
 resources/output.binary_tree
+binary_tree.bintree
