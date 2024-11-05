@@ -60,20 +60,18 @@ typedef int (fn_binary_tree_parse)(FILE *p_file, binary_tree_node *p_binary_tree
 /** !
  *  @brief The type definition for a function that is called on each node while traversing a tree
  * 
- *  @param p_key   the key
  *  @param p_value the value
  * 
  *  @return 1 on success, 0 on error
  */
-typedef int (binary_tree_traverse_fn)(void *p_key, void *p_value);
+typedef int (fn_binary_tree_traverse)(void *p_value);
 
 // Struct definitions
 struct binary_tree_node_s
 { 
-    void               *p_key,
-                       *p_value;
-    binary_tree_node   *p_left,
-                       *p_right;
+    void *p_value;
+    binary_tree_node *p_left,
+                     *p_right;
     unsigned long long  node_pointer;
 };
 
@@ -82,9 +80,11 @@ struct binary_tree_s
     mutex _lock;
     binary_tree_node *p_root;
     FILE             *p_random_access;
+    
     struct 
     {
         fn_tree_equal            *pfn_is_equal;
+        fn_tree_key_accessor     *pfn_key_accessor;
         fn_binary_tree_serialize *pfn_serialize_node;
         fn_binary_tree_parse     *pfn_parse_node;
     } functions;
@@ -106,7 +106,7 @@ struct binary_tree_s
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, unsigned long long node_size );
+int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size );
 
 // Accessors
 /** !
@@ -125,12 +125,11 @@ int binary_tree_search ( const binary_tree *const p_binary_tree, const void *con
  * Insert a property into a binary tree
  * 
  * @param p_binary_tree the binary tree
- * @param p_key         the property key
  * @param p_value       the property value
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_key, const void *const p_value );
+int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_value );
 
 /** !
  * Remove an element from a binary tree
@@ -152,7 +151,7 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
+int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
 
 /** !
  * Traverse a binary tree using the in order technique
@@ -162,7 +161,7 @@ int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, binary_tre
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
+int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
 
 /** !
  * Traverse a binary tree using the post order technique
@@ -172,7 +171,7 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
+int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
 
 // Parser
 /** !
@@ -185,7 +184,7 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tr
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_binary_tree_parse *pfn_parse_node );
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_tree_key_accessor, fn_binary_tree_parse *pfn_parse_node );
 
 // Serializer
 /** !

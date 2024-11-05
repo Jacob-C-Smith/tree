@@ -102,7 +102,7 @@ int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tr
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_preorder_node ( binary_tree_node *p_binary_tree_node, binary_tree_traverse_fn *pfn_traverse );
+int binary_tree_traverse_preorder_node ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse );
 
 /** !
  * Traverse a binary tree using the in order technique
@@ -112,7 +112,7 @@ int binary_tree_traverse_preorder_node ( binary_tree_node *p_binary_tree_node, b
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_inorder_node ( binary_tree_node *p_binary_tree_node, binary_tree_traverse_fn *pfn_traverse );
+int binary_tree_traverse_inorder_node ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse );
 
 /** !
  * Traverse a binary tree using the post order technique
@@ -122,7 +122,7 @@ int binary_tree_traverse_inorder_node ( binary_tree_node *p_binary_tree_node, bi
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_postorder_node ( binary_tree_node *p_binary_tree_node, binary_tree_traverse_fn *pfn_traverse );
+int binary_tree_traverse_postorder_node ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse );
 
 /** !
  * Deallocate a binary tree node
@@ -293,7 +293,7 @@ int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **p
     }
 }
 
-int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, unsigned long long node_size )
+int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size )
 {
 
     // Argument check
@@ -311,7 +311,8 @@ int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *p
         .p_root    = (void *) 0,
         .functions =
         {
-            .pfn_is_equal = (pfn_is_equal) ? pfn_is_equal : tree_compare_function
+            .pfn_is_equal = (pfn_is_equal) ? pfn_is_equal : tree_compare_function,
+            .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : tree_key_is_value
         },
         .metadata =
         {
@@ -372,9 +373,6 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
         // Allocate a binary tree node
         if ( binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0 ) goto failed_to_allocate_node;
 
-        // Store the key
-        p_binary_tree_node->p_key = pp_keys[0];
-
         // Store the value
         p_binary_tree_node->p_value = pp_values[0];
         
@@ -389,17 +387,11 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
         // Allocate a binary tree node
         if ( binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0 ) goto failed_to_allocate_node;
 
-        // Store the key
-        p_binary_tree_node->p_key = pp_keys[end];
-
         // Store the value
-        p_binary_tree_node->p_key = pp_values[end];
+        p_binary_tree_node->p_value = pp_values[end];
 
         // Allocate the left node
         if ( binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node->p_left) == 0 ) goto failed_to_allocate_node;
-
-        // Store the left key
-        p_binary_tree_node->p_left->p_key = pp_keys[start];
 
         // Store the left value
         p_binary_tree_node->p_left->p_value = pp_values[start];
@@ -419,11 +411,8 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
         // Allocate a binary tree node
         if ( binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0 ) goto failed_to_allocate_node;
 
-        // Store the key
-        p_binary_tree_node->p_key = pp_keys[end];
-
         // Store the value
-        p_binary_tree_node->p_key = pp_values[end];
+        p_binary_tree_node->p_value = pp_values[end];
 
         // Construct the left
         p_binary_tree_node->p_left = binary_tree_construct_balanced_recursive(p_binary_tree, pp_keys, pp_values, start, range + start - 1);
@@ -536,7 +525,11 @@ int binary_tree_search ( const binary_tree *const p_binary_tree, const void *con
     try_again:
 
     // Which side? 
-    comparator_return = p_binary_tree->functions.pfn_is_equal(p_node->p_key, p_key);
+    comparator_return = p_binary_tree->functions.pfn_is_equal
+    (
+        p_binary_tree->functions.pfn_key_accessor( p_node->p_value ),
+        p_key
+    );
 
     // Search the left node
     if ( comparator_return < 0 )
@@ -607,7 +600,7 @@ int binary_tree_search ( const binary_tree *const p_binary_tree, const void *con
     }
 }
 
-int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_key, const void *const p_value )
+int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_value )
 {
 
     // Argument check
@@ -626,7 +619,11 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
     try_again:
 
     // Which side? 
-    comparator_return = p_binary_tree->functions.pfn_is_equal(p_node->p_key, p_key);
+    comparator_return = p_binary_tree->functions.pfn_is_equal
+    (
+        p_binary_tree->functions.pfn_key_accessor(p_node->p_value),
+        p_binary_tree->functions.pfn_key_accessor(p_value)
+    );
 
     // Store the node on the left 
     if ( comparator_return < 0 )
@@ -645,9 +642,6 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
 
         // Construct a binary tree node
         if ( binary_tree_node_allocate(p_binary_tree, &p_node->p_left) == 0 ) goto failed_to_allocate_binary_tree_node;
-
-        // Store the key
-        p_node->p_left->p_key   = (void *) p_key;
 
         // Store the value
         p_node->p_left->p_value = (void *) p_value;
@@ -671,9 +665,6 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
         // Construct a binary tree node
         if ( binary_tree_node_allocate(p_binary_tree, &p_node->p_right) == 0 ) goto failed_to_allocate_binary_tree_node;
 
-        // Store the key
-        p_node->p_right->p_key   = (void *) p_key;
-
         // Store the value
         p_node->p_right->p_value = (void *) p_value;
         
@@ -694,9 +685,6 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
 
         // Construct a binary tree node
         if ( binary_tree_node_allocate(p_binary_tree, &p_node) == 0 ) goto failed_to_allocate_binary_tree_node;
-
-        // Store the key
-        p_node->p_key = (void *) p_key;
 
         // Store the value
         p_node->p_value = (void *) p_value;
@@ -761,7 +749,10 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
     try_again:
 
     // Which side? 
-    comparator_return = p_binary_tree->functions.pfn_is_equal(p_node->p_key, p_key);
+    comparator_return = p_binary_tree->functions.pfn_is_equal(
+        p_binary_tree->functions.pfn_key_accessor( p_node->p_value ),
+        p_key
+    );
 
     // Check the node on the left 
     if ( comparator_return < 0 )
@@ -772,7 +763,7 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
         {
             
             // If the left node is the target, remove it ...
-            if ( p_binary_tree->functions.pfn_is_equal(p_node->p_left->p_key, p_key) == 0 ) goto remove_left;
+            if ( p_binary_tree->functions.pfn_is_equal(p_binary_tree->functions.pfn_key_accessor(p_node->p_left->p_value), p_key) == 0 ) goto remove_left;
 
             // ... otherwise, update the state ...
             p_node = p_node->p_left;
@@ -794,7 +785,7 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
         {
 
             // If the left node is the target, remove it ...
-            if ( p_binary_tree->functions.pfn_is_equal(p_node->p_right->p_key, p_key) == 0 ) goto remove_right;
+            if ( p_binary_tree->functions.pfn_is_equal(p_binary_tree->functions.pfn_key_accessor(p_node->p_right->p_value), p_key) == 0 ) goto remove_right;
 
             // ... otherwise, update the state ...
             p_node = p_node->p_right;
@@ -951,7 +942,7 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
     }
 }
 
-int binary_tree_traverse_preorder_node ( binary_tree_node *p_binary_tree_node, binary_tree_traverse_fn *pfn_traverse )
+int binary_tree_traverse_preorder_node ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse )
 {
 
     // Argument check
@@ -959,7 +950,7 @@ int binary_tree_traverse_preorder_node ( binary_tree_node *p_binary_tree_node, b
     if ( pfn_traverse       == (void *) 0 ) goto no_traverse_function;
 
     // Root
-    pfn_traverse(p_binary_tree_node->p_key, p_binary_tree_node->p_value);
+    pfn_traverse(p_binary_tree_node->p_value);
 
     // Left
     if ( p_binary_tree_node->p_left ) binary_tree_traverse_preorder_node(p_binary_tree_node->p_left, pfn_traverse);
@@ -994,7 +985,7 @@ int binary_tree_traverse_preorder_node ( binary_tree_node *p_binary_tree_node, b
     }
 }
 
-int binary_tree_traverse_inorder_node ( binary_tree_node *p_binary_tree_node, binary_tree_traverse_fn *pfn_traverse )
+int binary_tree_traverse_inorder_node ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse )
 {
 
     // Argument check
@@ -1005,7 +996,7 @@ int binary_tree_traverse_inorder_node ( binary_tree_node *p_binary_tree_node, bi
     if ( p_binary_tree_node->p_left ) binary_tree_traverse_inorder_node(p_binary_tree_node->p_left, pfn_traverse);
 
     // Root
-    pfn_traverse(p_binary_tree_node->p_key, p_binary_tree_node->p_value);
+    pfn_traverse(p_binary_tree_node->p_value);
 
     // Right
     if ( p_binary_tree_node->p_right ) binary_tree_traverse_inorder_node(p_binary_tree_node->p_right, pfn_traverse);
@@ -1037,7 +1028,7 @@ int binary_tree_traverse_inorder_node ( binary_tree_node *p_binary_tree_node, bi
     }
 }
 
-int binary_tree_traverse_postorder_node ( binary_tree_node *p_binary_tree_node, binary_tree_traverse_fn *pfn_traverse )
+int binary_tree_traverse_postorder_node ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse )
 {
 
     // Argument check
@@ -1051,7 +1042,7 @@ int binary_tree_traverse_postorder_node ( binary_tree_node *p_binary_tree_node, 
     if ( p_binary_tree_node->p_right ) binary_tree_traverse_postorder_node(p_binary_tree_node->p_right, pfn_traverse);
 
     // Root
-    pfn_traverse(p_binary_tree_node->p_key, p_binary_tree_node->p_value);
+    pfn_traverse(p_binary_tree_node->p_value);
 
     // Success
     return 1;
@@ -1080,7 +1071,7 @@ int binary_tree_traverse_postorder_node ( binary_tree_node *p_binary_tree_node, 
     }
 }
 
-int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse )
+int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse )
 {
 
     // Argument check
@@ -1137,7 +1128,7 @@ int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, binary_tre
     }
 }
 
-int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse )
+int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse )
 {
 
     // Argument check
@@ -1194,7 +1185,7 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, binary_tree
     }
 }
 
-int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse )
+int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse )
 {
 
 
@@ -1252,7 +1243,7 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tr
     }
 }
 
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_binary_tree_parse *pfn_parse_node )
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_tree_key_accessor, fn_binary_tree_parse *pfn_parse_node )
 {
     
     // Argument check
@@ -1280,7 +1271,7 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, 
     }
 
     // Allocate a binary tree
-    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, node_size) == 0 ) goto failed_to_construct_binary_tree;
+    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, pfn_tree_key_accessor, node_size) == 0 ) goto failed_to_construct_binary_tree;
 
     // Read the root node
     if ( binary_tree_parse_node(p_f, p_binary_tree, &p_binary_tree->p_root, pfn_parse_node) == 0 ) goto failed_to_construct_binary_tree;
