@@ -1,8 +1,8 @@
 /** !
  * Example tree program
- * 
+ *
  * @file main.c
- * 
+ *
  * @author Jacob Smith
  */
 
