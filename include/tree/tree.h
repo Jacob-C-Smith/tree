@@ -47,6 +47,14 @@ typedef struct { double x, y; } tree_vec2;
  */
 typedef int (fn_tree_equal)(const void *const p_a, const void *const p_b);
 
+/** !
+ *  @brief The type definition for a function that accesses the key of a given value
+ * 
+ *  @param p_value the value
+ * 
+ *  @return 1 on success, 0 on error
+ */
+typedef const void *const (fn_tree_key_accessor)(const void *const p_value);
 
 // Initializer
 int tree_init ( void ); 
@@ -61,3 +69,14 @@ int tree_init ( void );
  * @return 0 if a == b else -1 if a > b else 1
  */
 int tree_compare_function ( const void *const p_a, const void *const p_b );
+
+// Accessors
+/** !
+ * Default key accessor
+ * 
+ * @param pp_result result
+ * @param p_value   the value to extract the key from
+ * 
+ * @return 1 on success, 0 on error
+ */
+const void *tree_key_is_value ( const void *const p_value );
