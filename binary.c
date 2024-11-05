@@ -1271,7 +1271,7 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, 
     }
 
     // Allocate a binary tree
-    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, pfn_tree_key_accessor, node_size) == 0 ) goto failed_to_construct_binary_tree;
+    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, pfn_tree_key_accessor, node_size - ( 2 * sizeof(unsigned long long) )) == 0 ) goto failed_to_construct_binary_tree;
 
     // Read the root node
     if ( binary_tree_parse_node(p_f, p_binary_tree, &p_binary_tree->p_root, pfn_parse_node) == 0 ) goto failed_to_construct_binary_tree;
@@ -1351,9 +1351,11 @@ int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tr
     
     memset(p_binary_tree_node, 0, sizeof(binary_tree_node));
 
+    p_binary_tree_node->node_pointer = ( ftell(p_file) ) / (p_binary_tree->metadata.node_size);
+
     // User provided parsing function
     pfn_binary_tree_parse(p_file, p_binary_tree_node);
-
+    
     // Store the left pointer
     fread(&left_pointer, 8, 1, p_file);
 
@@ -1364,7 +1366,7 @@ int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tr
     if ( left_pointer == 0 ) goto parse_right;
 
     // Set the pointer correctly
-    fseek(p_file, (long) ( sizeof(p_binary_tree->metadata) + (left_pointer * ( p_binary_tree->metadata.node_size - 16 ))), SEEK_SET);
+    fseek(p_file, (long) ( sizeof(p_binary_tree->metadata) + (left_pointer * ( p_binary_tree->metadata.node_size ))), SEEK_SET);
 
     // Parse the left node
     if ( binary_tree_parse_node(p_file, p_binary_tree, &p_binary_tree_node->p_left, pfn_binary_tree_parse) == 0 ) goto failed_to_parse_node;
@@ -1375,7 +1377,7 @@ int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tr
     if ( right_pointer == 0 ) goto done;
 
     // Set the pointer correctly
-    fseek(p_file, (long) ( sizeof(p_binary_tree->metadata) + (right_pointer * ( p_binary_tree->metadata.node_size - 16 ))), SEEK_SET);
+    fseek(p_file, (long) ( sizeof(p_binary_tree->metadata) + (right_pointer * ( p_binary_tree->metadata.node_size))), SEEK_SET);
 
     // Parse the right node
     if ( binary_tree_parse_node(p_file, p_binary_tree, &p_binary_tree_node->p_right, pfn_binary_tree_parse) == 0 ) goto failed_to_parse_node;
