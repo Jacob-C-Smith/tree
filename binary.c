@@ -45,30 +45,16 @@ int binary_tree_node_create ( binary_tree_node **pp_binary_tree_node );
 int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **pp_binary_tree_node );
 
 /** !
- * Construct a balanced binary tree from a sorted list of keys and values. 
- * 
- * @param pp_binary_tree    return
- * @param pp_keys           the list of keys
- * @param pp_values         the list of values
- * @param property_quantity the size of the list
- * @param pfn_is_equal      function for testing equality of elements in set IF parameter is not null ELSE default
- * @param node_size         the size of a serialized node in bytes
- * 
-*/
-int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_keys, void **pp_values, size_t property_quantity, fn_tree_equal *pfn_is_equal, unsigned long long node_size );
-
-/** !
  * Recursively construct a balanced binary search tree from a sorted list of keys and values
  * 
  * @param p_binary_tree the binary tree
- * @param pp_keys       the list of keys
  * @param pp_values     the list of values
  * @param start         the starting index 
  * @param end           the ending index
  * 
  * @return the root node 
  */
-binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_binary_tree, void **pp_keys, void **pp_values, size_t start, size_t end );
+binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_binary_tree, void **pp_values, size_t start, size_t end );
 
 /** !
  * Recursively serialize binary tree nodes to a file
@@ -357,7 +343,7 @@ int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *p
     }
 }
 
-binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_binary_tree, void **pp_keys, void **pp_values, size_t start, size_t end )
+binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_binary_tree, void **pp_values, size_t start, size_t end )
 {
 
     // NOTE: This function has undefined behavior if p_binary_tree, pp_keys, 
@@ -371,10 +357,10 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
     {
 
         // Allocate a binary tree node
-        if ( binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0 ) goto failed_to_allocate_node;
+        if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0) goto failed_to_allocate_node;
 
         // Store the value
-        p_binary_tree_node->p_value = pp_values[0];
+        p_binary_tree_node->p_value = pp_values[start];
         
         // Done
         return p_binary_tree_node;
@@ -385,13 +371,13 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
     {
 
         // Allocate a binary tree node
-        if ( binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0 ) goto failed_to_allocate_node;
+        if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0) goto failed_to_allocate_node;
 
         // Store the value
         p_binary_tree_node->p_value = pp_values[end];
 
         // Allocate the left node
-        if ( binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node->p_left) == 0 ) goto failed_to_allocate_node;
+        if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node->p_left) == 0) goto failed_to_allocate_node;
 
         // Store the left value
         p_binary_tree_node->p_left->p_value = pp_values[start];
@@ -405,20 +391,19 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
     {
 
         // Initialized data
-        size_t median = ( end + start + 1 ) / 2,
-               range  = ( end - start + 1 ) / 2;
+        size_t median = (start + end) / 2;
 
         // Allocate a binary tree node
-        if ( binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0 ) goto failed_to_allocate_node;
+        if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0) goto failed_to_allocate_node;
 
         // Store the value
-        p_binary_tree_node->p_value = pp_values[end];
+        p_binary_tree_node->p_value = pp_values[median];
 
         // Construct the left
-        p_binary_tree_node->p_left = binary_tree_construct_balanced_recursive(p_binary_tree, pp_keys, pp_values, start, range + start - 1);
+        p_binary_tree_node->p_left = binary_tree_construct_balanced_recursive(p_binary_tree, pp_values, start, median - 1);
 
         // Construct the right
-        p_binary_tree_node->p_right = binary_tree_construct_balanced_recursive(p_binary_tree, pp_keys, pp_values, range + start + 1, end);
+        p_binary_tree_node->p_right = binary_tree_construct_balanced_recursive(p_binary_tree, pp_values, median + 1, end);
 
         // Done
         return p_binary_tree_node;
@@ -443,7 +428,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
     }
 }
 
-int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_keys, void **pp_values, size_t property_quantity, fn_tree_equal *pfn_is_equal, unsigned long long node_size )
+int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_values, size_t property_quantity, fn_tree_equal *pfn_is_equal,  fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size )
 {
 
     // Argument check
@@ -461,17 +446,18 @@ int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **
         .p_root    = (void *) 0,
         .functions =
         {
-            .pfn_is_equal = (pfn_is_equal) ? pfn_is_equal : tree_compare_function
+            .pfn_is_equal = (pfn_is_equal) ? pfn_is_equal : tree_compare_function,
+            .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : tree_key_is_value
         },
         .metadata =
         {
-            .node_quantity = property_quantity,
+            .node_quantity = 0,
             .node_size     = node_size + ( 2 * sizeof(unsigned long long) )
         }
     };
 
     // Recursively construct a binary search tree, and store the root
-    p_binary_tree->p_root = binary_tree_construct_balanced_recursive(p_binary_tree, pp_keys, pp_values, 0, property_quantity);
+    p_binary_tree->p_root = binary_tree_construct_balanced_recursive(p_binary_tree, pp_values, 0, property_quantity);
 
     // Return a pointer to the caller
     *pp_binary_tree = p_binary_tree;
