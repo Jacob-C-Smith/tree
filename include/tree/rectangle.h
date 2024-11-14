@@ -47,7 +47,7 @@ typedef struct rectangle_tree_node_s rectangle_tree_node;
  * 
  *  @return 1 on success, 0 on error
  */
-typedef int (rectangle_tree_serialize_fn)(FILE *p_file, rectangle_tree_node *p_rectangle_tree_node);
+typedef int (fn_rectangle_tree_serialize)(FILE *p_file, rectangle_tree_node *p_rectangle_tree_node);
 
 /** !
  *  @brief The type definition for a function that parses a node from a file
@@ -58,7 +58,7 @@ typedef int (rectangle_tree_serialize_fn)(FILE *p_file, rectangle_tree_node *p_r
  * 
  *  @return 1 on success, 0 on error
  */
-typedef int (rectangle_tree_parse_fn)(FILE *p_file, rectangle_tree *p_rectangle_tree, rectangle_tree_node **pp_rectangle_tree_node, unsigned long long node_pointer );
+typedef int (fn_rectangle_tree_parse)(FILE *p_file, rectangle_tree *p_rectangle_tree, rectangle_tree_node **pp_rectangle_tree_node, unsigned long long node_pointer );
 
 // Struct definitions
 struct rectangle_tree_node_s
@@ -76,8 +76,8 @@ struct rectangle_tree_s
     struct 
     {
         fn_tree_equal       *pfn_is_equal;
-        rectangle_tree_serialize_fn *pfn_serialize_node;
-        rectangle_tree_parse_fn     *pfn_parse_node;
+        fn_rectangle_tree_serialize *pfn_serialize_node;
+        fn_rectangle_tree_parse     *pfn_parse_node;
     } functions;
 
     struct 
@@ -160,7 +160,7 @@ int rectangle_tree_remove ( rectangle_tree *const p_rectangle_tree, const void *
  * 
  * @return 1 on success, 0 on error
  */
-int rectangle_tree_parse ( rectangle_tree **const pp_rectangle_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, rectangle_tree_parse_fn *pfn_parse_node );
+int rectangle_tree_parse ( rectangle_tree **const pp_rectangle_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, fn_rectangle_tree_parse *pfn_parse_node );
 
 // Serializer
 /** !
@@ -172,7 +172,7 @@ int rectangle_tree_parse ( rectangle_tree **const pp_rectangle_tree, FILE *p_fil
  * 
  * @return 1 on success, 0 on error
  */
-int rectangle_tree_serialize ( rectangle_tree *const p_rectangle_tree, const char *p_path, rectangle_tree_serialize_fn *pfn_serialize_node );
+int rectangle_tree_serialize ( rectangle_tree *const p_rectangle_tree, const char *p_path, fn_rectangle_tree_serialize *pfn_serialize_node );
 
 // Destructors
 /** !

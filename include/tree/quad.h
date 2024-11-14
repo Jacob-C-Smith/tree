@@ -44,7 +44,7 @@ typedef struct quad_tree_node_s quad_tree_node;
  * 
  *  @return 1 on success, 0 on error
  */
-typedef int (quad_tree_serialize_fn)(FILE *p_file, quad_tree_node *p_quad_tree_node);
+typedef int (fn_quad_tree_serialize)(FILE *p_file, quad_tree_node *p_quad_tree_node);
 
 /** !
  *  @brief The type definition for a function that parses a node from a file
@@ -55,7 +55,7 @@ typedef int (quad_tree_serialize_fn)(FILE *p_file, quad_tree_node *p_quad_tree_n
  * 
  *  @return 1 on success, 0 on error
  */
-typedef int (quad_tree_parse_fn)(FILE *p_file, quad_tree *p_quad_tree, quad_tree_node **pp_quad_tree_node, unsigned long long node_pointer );
+typedef int (fn_quad_tree_parse)(FILE *p_file, quad_tree *p_quad_tree, quad_tree_node **pp_quad_tree_node, unsigned long long node_pointer );
 
 // Struct definitions
 struct quad_tree_node_s
@@ -79,8 +79,8 @@ struct quad_tree_s
     struct 
     {
         fn_tree_equal          *pfn_is_equal;
-        quad_tree_serialize_fn *pfn_serialize_node;
-        quad_tree_parse_fn     *pfn_parse_node;
+        fn_quad_tree_serialize *pfn_serialize_node;
+        fn_quad_tree_parse     *pfn_parse_node;
     } functions;
 
     struct 
@@ -158,7 +158,7 @@ int quad_tree_remove ( quad_tree *const p_quad_tree, const void *const p_key, co
  * 
  * @return 1 on success, 0 on error
  */
-int quad_tree_parse ( quad_tree **const pp_quad_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, quad_tree_parse_fn *pfn_parse_node );
+int quad_tree_parse ( quad_tree **const pp_quad_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, fn_quad_tree_parse *pfn_parse_node );
 
 // Serializer
 /** !
@@ -170,7 +170,7 @@ int quad_tree_parse ( quad_tree **const pp_quad_tree, FILE *p_file, fn_tree_equa
  * 
  * @return 1 on success, 0 on error
  */
-int quad_tree_serialize ( quad_tree *const p_quad_tree, FILE *p_file, quad_tree_serialize_fn *pfn_serialize_node );
+int quad_tree_serialize ( quad_tree *const p_quad_tree, FILE *p_file, fn_quad_tree_serialize *pfn_serialize_node );
 
 // Destructors
 /** !

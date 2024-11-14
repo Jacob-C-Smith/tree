@@ -59,9 +59,9 @@
 typedef struct binary_tree_s      binary_tree;
 typedef struct binary_tree_node_s binary_tree_node;
 
-typedef int (binary_tree_serialize_fn) (FILE *p_file, binary_tree_node *p_binary_tree_node);
-typedef int (binary_tree_parse_fn)     (FILE *p_file, binary_tree_node *p_binary_tree_node);
-typedef int (binary_tree_traverse_fn)  (void *p_key, void *p_value);
+typedef int (fn_binary_tree_serialize) (FILE *p_file, binary_tree_node *p_binary_tree_node);
+typedef int (fn_binary_tree_parse)     (FILE *p_file, binary_tree_node *p_binary_tree_node);
+typedef int (fn_binary_tree_traverse)  (void *p_key, void *p_value);
 ```
 
 #### Function definitions
@@ -70,7 +70,7 @@ typedef int (binary_tree_traverse_fn)  (void *p_key, void *p_value);
 int binary_tree_create ( binary_tree **const pp_binary_tree );
 
 // Constructors
-int binary_tree_construct ( binary_tree **const pp_binary_tree, tree_equal_fn *pfn_is_equal, unsigned long long node_size );
+int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, unsigned long long node_size );
 
 // Accessors
 int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value );
@@ -80,15 +80,15 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_k
 int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const p_value );
 
 // Traversal
-int binary_tree_traverse_preorder  ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
-int binary_tree_traverse_inorder   ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
-int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, binary_tree_traverse_fn *pfn_traverse );
+int binary_tree_traverse_preorder  ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
+int binary_tree_traverse_inorder   ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
+int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
 
 // Parser
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, tree_equal_fn *pfn_is_equal, binary_tree_parse_fn *pfn_parse_node );
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_binary_tree_parse *pfn_parse_node );
 
 // Serializer
-int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, binary_tree_serialize_fn *pfn_serialize_node );
+int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, fn_binary_tree_serialize *pfn_serialize_node );
 
 // Destructors
 int binary_tree_destroy ( binary_tree **const pp_binary_tree );
@@ -101,9 +101,9 @@ typedef struct b_tree_s           b_tree;
 typedef struct b_tree_node_s      b_tree_node;
 typedef struct b_tree_metadata_s  b_tree_metadata;
 
-typedef int (b_tree_serialize_fn) (FILE *p_file, b_tree_node *p_b_tree_node);
-typedef int (b_tree_parse_fn)     (FILE *p_file, b_tree *p_b_tree, b_tree_node **pp_b_tree_node, unsigned long long node_pointer );
-typedef int (b_tree_traverse_fn)  (void *p_key, void *p_value);
+typedef int (fn_b_tree_serialize) (FILE *p_file, b_tree_node *p_b_tree_node);
+typedef int (fn_b_tree_parse)     (FILE *p_file, b_tree *p_b_tree, b_tree_node **pp_b_tree_node, unsigned long long node_pointer );
+typedef int (fn_b_tree_traverse)  (void *p_key, void *p_value);
  ```
  #### Function definitions
  ```c
@@ -111,7 +111,7 @@ typedef int (b_tree_traverse_fn)  (void *p_key, void *p_value);
 int b_tree_create ( b_tree **const pp_b_tree );
 
 // Constructors
-int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, tree_equal_fn *pfn_is_equal, int degree, unsigned long long node_size );
+int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_tree_equal *pfn_is_equal, int degree, unsigned long long node_size );
 
 // Accessors
 int b_tree_search ( const b_tree *const p_b_tree, const void *const p_key, const void **const pp_value );
@@ -121,15 +121,15 @@ int b_tree_insert ( b_tree *const p_b_tree, const void *const p_key, const void 
 int b_tree_remove ( b_tree *const p_b_tree, const void *const p_key, const void **const p_value );
 
 // Traversal
-int binary_tree_traverse_preorder  ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
-int binary_tree_traverse_inorder   ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
-int binary_tree_traverse_postorder ( b_tree *const p_b_tree, b_tree_traverse_fn *pfn_traverse );
+int binary_tree_traverse_preorder  ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_traverse );
+int binary_tree_traverse_inorder   ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_traverse );
+int binary_tree_traverse_postorder ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_traverse );
 
 // Parser
-int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, tree_equal_fn *pfn_is_equal, b_tree_parse_fn *pfn_parse_node );
+int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, fn_b_tree_parse *pfn_parse_node );
 
 // Serializer
-int b_tree_serialize ( b_tree *const p_b_tree, const char *p_path, b_tree_serialize_fn *pfn_serialize_node );
+int b_tree_serialize ( b_tree *const p_b_tree, const char *p_path, fn_b_tree_serialize *pfn_serialize_node );
 
 // Destructors
 int b_tree_destroy ( b_tree **const pp_b_tree );

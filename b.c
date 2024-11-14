@@ -112,7 +112,7 @@ int b_tree_disk_read ( b_tree *p_b_tree, unsigned long long disk_address, b_tree
  * 
  * @return 1 on success, 0 on error
 */
-int b_tree_traverse_preorder_node ( b_tree_node *p_b_tree_node, b_tree_traverse_fn *pfn_traverse );
+int b_tree_traverse_preorder_node ( b_tree_node *p_b_tree_node, fn_b_tree_traverse *pfn_traverse );
 
 /** !
  * Traverse a b tree using the in order technique
@@ -122,7 +122,7 @@ int b_tree_traverse_preorder_node ( b_tree_node *p_b_tree_node, b_tree_traverse_
  * 
  * @return 1 on success, 0 on error
 */
-int b_tree_traverse_inorder_node ( b_tree_node *p_b_tree_node, b_tree_traverse_fn *pfn_traverse );
+int b_tree_traverse_inorder_node ( b_tree_node *p_b_tree_node, fn_b_tree_traverse *pfn_traverse );
 
 /** !
  * Traverse a b tree using the post order technique
@@ -132,7 +132,7 @@ int b_tree_traverse_inorder_node ( b_tree_node *p_b_tree_node, b_tree_traverse_f
  * 
  * @return 1 on success, 0 on error
 */
-int b_tree_traverse_postorder_node ( b_tree_node *p_b_tree_node, b_tree_traverse_fn *pfn_traverse );
+int b_tree_traverse_postorder_node ( b_tree_node *p_b_tree_node, fn_b_tree_traverse *pfn_traverse );
 
 /** !
  * Return the size of a file IF buffer == 0 ELSE read a file into buffer
@@ -1138,7 +1138,7 @@ int b_tree_remove ( b_tree *const p_b_tree, const void *const p_key, const void 
     return 0;
 }
 
-int b_tree_traverse_inorder_node ( b_tree_node *p_b_tree_node, b_tree_traverse_fn *pfn_traverse )
+int b_tree_traverse_inorder_node ( b_tree_node *p_b_tree_node, fn_b_tree_traverse *pfn_traverse )
 {
 
     // Argument check
@@ -1175,7 +1175,7 @@ int b_tree_traverse_inorder_node ( b_tree_node *p_b_tree_node, b_tree_traverse_f
     }
 }
 
-int b_tree_traverse_inorder ( b_tree *p_b_tree, b_tree_traverse_fn *pfn_traverse )
+int b_tree_traverse_inorder ( b_tree *p_b_tree, fn_b_tree_traverse *pfn_traverse )
 {
 
     // Argument check
@@ -1223,14 +1223,14 @@ int b_tree_traverse_inorder ( b_tree *p_b_tree, b_tree_traverse_fn *pfn_traverse
     }
 }
 
-int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, b_tree_parse_fn *pfn_parse_node )
+int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, fn_b_tree_parse *pfn_parse_node )
 {
     
     // Success
     return 0;
 }
 
-int b_tree_serialize ( b_tree *const p_b_tree, const char *p_path, b_tree_serialize_fn *pfn_serialize_node )
+int b_tree_serialize ( b_tree *const p_b_tree, const char *p_path, fn_b_tree_serialize *pfn_serialize_node )
 {
     
     // Success

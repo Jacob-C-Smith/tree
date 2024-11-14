@@ -193,14 +193,14 @@ int rectangle_tree_remove ( rectangle_tree *const p_rectangle_tree, const void *
     return 1;
 }
 
-int rectangle_tree_parse ( rectangle_tree **const pp_rectangle_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, rectangle_tree_parse_fn *pfn_parse_node )
+int rectangle_tree_parse ( rectangle_tree **const pp_rectangle_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, fn_rectangle_tree_parse *pfn_parse_node )
 {
 
     // Success
     return 1;
 }
 
-int rectangle_tree_serialize ( rectangle_tree *const p_rectangle_tree, const char *p_path, rectangle_tree_serialize_fn *pfn_serialize_node )
+int rectangle_tree_serialize ( rectangle_tree *const p_rectangle_tree, const char *p_path, fn_rectangle_tree_serialize *pfn_serialize_node )
 {
 
     // Success
