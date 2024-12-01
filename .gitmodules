@@ -7,3 +7,6 @@
 [submodule "extern/tuple"]
 	path = extern/tuple
 	url = https://github.com/Jacob-C-Smith/tuple
+[submodule "extern/hash-cache"]
+	path = extern/hash-cache
+	url = https://github.com/Jacob-C-Smith/hash-cache

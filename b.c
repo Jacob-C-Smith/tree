@@ -159,7 +159,7 @@ int b_tree_node_create ( b_tree_node **const pp_b_tree_node )
     if ( p_b_tree_node == (void *) 0 ) goto no_mem;
 
     // Zero set the struct
-    memset(p_b_tree_node, 0, sizeof(b_tree));
+    memset(p_b_tree_node, 0, sizeof(b_tree_node));
 
     // Return a pointer to the caller
     *pp_b_tree_node = p_b_tree_node;
@@ -242,13 +242,13 @@ int b_tree_create ( b_tree **const pp_b_tree )
     }
 }
 
-int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_tree_equal *pfn_is_equal, int degree, unsigned long long node_size )
+int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_tree_comparator *pfn_is_equal, int degree, unsigned long long node_size )
 {
 
     // Argument check
     if ( pp_b_tree == (void *) 0 ) goto no_b_tree;
     if ( degree    <           2 ) goto no_degree;
-    if ( pp_b_tree == (void *) 0 ) goto no_node_size;
+    if ( node_size == (void *) 0 ) goto no_node_size;
 
     // Initialized data
     b_tree *p_b_tree = (void *) 0;
@@ -259,7 +259,7 @@ int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_tree
     if ( file_exists == false )
         
         // Create the file
-        p_random_access_file = fopen(path, "w+");
+        p_random_access_file = fopen(path, "wb+");
 
     // File exists
     else 
@@ -318,7 +318,7 @@ int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_tree
     }
 
     // Store the comparator
-    p_b_tree->functions.pfn_is_equal = ( pfn_is_equal ) ? pfn_is_equal : tree_compare_function;
+    p_b_tree->functions.pfn_is_equal = ( pfn_is_equal ) ? pfn_is_equal : tree_compare;
 
     // Return a pointer to the caller
     *pp_b_tree = p_b_tree;
@@ -804,7 +804,10 @@ int b_tree_insert_not_full ( b_tree *p_b_tree, b_tree_node *const p_b_tree_node,
         //
 
         // Shift keys up
-        while (i >= 0 && p_b_tree->functions.pfn_is_equal(p_property, p_b_tree_node->properties[i]) ) i--;
+        while (i >= 0 && p_b_tree->functions.pfn_is_equal(p_property, p_b_tree_node->properties[i]) < 0) {
+            i--;
+        }
+        i++; // Make sure to adjust `i` to point to the correct child node.
 
         b_tree_disk_read(p_b_tree, p_b_tree_node->_child_pointers[i], &p_child_node);
 
@@ -1223,7 +1226,7 @@ int b_tree_traverse_inorder ( b_tree *p_b_tree, fn_b_tree_traverse *pfn_traverse
     }
 }
 
-int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, fn_b_tree_parse *pfn_parse_node )
+int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_tree_comparator *pfn_is_equal, fn_b_tree_parse *pfn_parse_node )
 {
     
     // Success

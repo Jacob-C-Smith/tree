@@ -279,7 +279,7 @@ int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **p
     }
 }
 
-int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size )
+int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_comparator *pfn_is_equal, fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size )
 {
 
     // Argument check
@@ -297,8 +297,10 @@ int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *p
         .p_root    = (void *) 0,
         .functions =
         {
-            .pfn_is_equal = (pfn_is_equal) ? pfn_is_equal : tree_compare_function,
-            .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : tree_key_is_value
+            .pfn_is_equal = (pfn_is_equal) ? pfn_is_equal : tree_compare,
+            .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : tree_key_accessor,
+            .pfn_parse_node = tree_parser,
+            .pfn_serialize_node = tree_serializer
         },
         .metadata =
         {
@@ -428,7 +430,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
     }
 }
 
-int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_values, size_t property_quantity, fn_tree_equal *pfn_is_equal,  fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size )
+int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_values, size_t property_quantity, fn_tree_comparator *pfn_is_equal,  fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size )
 {
 
     // Argument check
@@ -446,8 +448,8 @@ int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **
         .p_root    = (void *) 0,
         .functions =
         {
-            .pfn_is_equal = (pfn_is_equal) ? pfn_is_equal : tree_compare_function,
-            .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : tree_key_is_value
+            .pfn_is_equal = (pfn_is_equal) ? pfn_is_equal : tree_compare,
+            .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : tree_key_accessor
         },
         .metadata =
         {
@@ -562,7 +564,8 @@ int binary_tree_search ( const binary_tree *const p_binary_tree, const void *con
     }
 
     // Return a pointer to the caller
-    *pp_value = p_node->p_value;
+    if ( pp_value )
+        *pp_value = p_node->p_value;
 
     // Unlock
     mutex_unlock(&p_binary_tree->_lock);
@@ -611,8 +614,11 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_v
         p_binary_tree->functions.pfn_key_accessor(p_value)
     );
 
+    // Exists already
+    if ( comparator_return == 0 ) goto value_exists;
+
     // Store the node on the left 
-    if ( comparator_return < 0 )
+    else if ( comparator_return < 0 )
     {
 
         // If the left node is occupied ...
@@ -661,6 +667,13 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_v
 
     // Success
     return 1;
+
+    value_exists:
+        
+        // Unlock
+        mutex_unlock(&p_binary_tree->_lock);
+
+        return 0;
 
     // This branch runs if there is no root node
     no_root:
@@ -787,7 +800,8 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
     done:
 
     // Return a pointer to the caller
-    *pp_value = p_value;
+    if ( pp_value )
+        *pp_value = p_value;
 
     // Unlock
     mutex_unlock(&p_binary_tree->_lock);
@@ -1229,7 +1243,7 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary
     }
 }
 
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_tree_key_accessor, fn_binary_tree_parse *pfn_parse_node )
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_comparator *pfn_is_equal, fn_tree_key_accessor *pfn_tree_key_accessor, fn_binary_tree_parse *pfn_parse_node )
 {
     
     // Argument check
@@ -1503,13 +1517,12 @@ int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binar
     }
 }
 
-int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, fn_binary_tree_serialize *pfn_serialize_node )
+int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path )
 {
 
     // Argument check
-    if ( p_binary_tree      == (void *) 0 ) goto no_binary_tree;
-    if ( p_path             == (void *) 0 ) goto no_file;
-    if ( pfn_serialize_node == (void *) 0 ) goto no_serializer;
+    if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
+    if ( p_path        == (void *) 0 ) goto no_file;
 
     // Lock
     mutex_lock(&p_binary_tree->_lock);
@@ -1534,7 +1547,7 @@ int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path
     }
 
     // Write the root node
-    if ( binary_tree_serialize_node(p_binary_tree->p_random_access, p_binary_tree, p_binary_tree->p_root, pfn_serialize_node) == 0 ) goto failed_to_serialize_node;
+    if ( binary_tree_serialize_node(p_binary_tree->p_random_access, p_binary_tree, p_binary_tree->p_root, p_binary_tree->functions.pfn_serialize_node) == 0 ) goto failed_to_serialize_node;
 
     // Flush the file
     fflush(p_binary_tree->p_random_access);
@@ -1561,14 +1574,6 @@ int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path
             no_file:
                 #ifndef NDEBUG
                     printf("[tree] [binary] Null pointer provided for parameter \"p_file\" in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // Error
-                return 0;
-
-            no_serializer:
-                #ifndef NDEBUG
-                    printf("[tree] [binary] Null pointer provided for parameter \"pfn_serialize_node\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error

@@ -52,6 +52,19 @@ if ( NOT "${HAS_SYNC}")
     endif()
 endif()
 
+# Find the hash cache module
+if ( NOT "${HAS_HASH_CACHE}")
+    
+    # Add the hash cache directory
+    add_subdirectory(${CMAKE_SOURCE_DIR}/extern/hash-cache ${CMAKE_SOURCE_DIR}/build/hash-cache)
+
+    # Let any parent project know that this project has hash cache
+    if(NOT PROJECT_IS_TOP_LEVEL)
+        set(HAS_HASH_CACHE true PARENT_SCOPE)
+        set(HASH_CACHE_INCLUDE_DIR ${HASH_CACHE_INCLUDE_DIR} PARENT_SCOPE)
+    endif()
+endif()
+
 # Find the tuple module
 if ( NOT "${HAS_TUPLE}")
     
@@ -79,18 +92,18 @@ endif()
 
 # Add source to this project's executable.
 add_executable (tree_example "main.c")
-add_dependencies(tree_example tree tuple sync log)
-target_include_directories(tree_example PUBLIC ${TREE_INCLUDE_DIR} ${TUPLE_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR})
-target_link_libraries(tree_example tree tuple sync log)
+add_dependencies(tree_example tree tuple sync log hash_cache)
+target_include_directories(tree_example PUBLIC ${TREE_INCLUDE_DIR} ${TUPLE_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR} ${HASH_CACHE_INCLUDE_DIR})
+target_link_libraries(tree_example tree tuple sync log hash_cache)
 
 # Add source to the tester
-# add_executable (tree_test "tree_test.c")
-# add_dependencies(tree_test sync tree)
-# target_include_directories(tree_test PUBLIC include)
-# target_link_libraries(tree_test sync tree)
+add_executable (tree_test "tree_test.c")
+add_dependencies(tree_test sync tree)
+target_include_directories(tree_test PUBLIC include)
+target_link_libraries(tree_test sync tree)
 
 # Add source to this project's library
-add_library (tree SHARED "tree.c" "avl.c" "b.c" "binary.c" "quad.c" "rectangle.c" "redblack.c")
-add_dependencies(tree tuple sync log)
-target_include_directories(tree PUBLIC ${TREE_INCLUDE_DIR} ${TUPLE_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR})
-target_link_libraries(tree tuple sync log)
+add_library (tree SHARED "tree.c" "avl.c" "b.c" "binary.c" "red_black.c" "merkle.c")
+add_dependencies(tree tuple sync log hash_cache)
+target_include_directories(tree PUBLIC ${TREE_INCLUDE_DIR} ${TUPLE_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR} ${HASH_CACHE_INCLUDE_DIR})
+target_link_libraries(tree tuple sync log hash_cache)

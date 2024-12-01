@@ -15,11 +15,15 @@
 
 // tree
 #include <tree/tree.h>
+#include <tree/avl.h>
 #include <tree/binary.h>
 #include <tree/b.h>
+#include <tree/merkle.h>
+#include <tree/red_black.h>
 
 // Preprocessor defines
 #define BINARY_TREE_EXAMPLE_LIST_LENGTH 15
+#define MERKLE_TREE_EXAMPLE_LIST_LENGTH 7
 #define B_TREE_EXAMPLE_DEGREE           15
 #define B_TREE_EXAMPLE_SEQUENCE_LENGTH  16
 
@@ -29,9 +33,9 @@ enum tree_examples_e
     TREE_EXAMPLE_AVL       = 0,
     TREE_EXAMPLE_B         = 1,
     TREE_EXAMPLE_BINARY    = 2,
-    TREE_EXAMPLE_QUAD      = 3,
-    TREE_EXAMPLE_R         = 4,
-    TREE_EXAMPLE_RED_BLACK = 5,
+    TREE_EXAMPLE_MERKLE    = 3,
+    TREE_EXAMPLE_RED_BLACK = 4,
+    TREE_EXAMPLE           = 5,
     TREE_EXAMPLES_QUANTITY = 6
 };
 
@@ -39,7 +43,7 @@ enum tree_examples_e
 struct number_and_string_s
 {
     char _string[16];
-    double number;
+    size_t number;
 };
 
 // Type definitions
@@ -97,6 +101,16 @@ int tree_b_example ( int argc, const char *argv[] );
 int tree_binary_example ( int argc, const char *argv[] );
 
 /** !
+ * Merkle tree example program
+ * 
+ * @param argc the argc parameter of the entry point
+ * @param argv the argv parameter of the entry point
+ * 
+ * @return 1 on success, 0 on error
+ */
+int tree_merkle_example ( int argc, const char *argv[] );
+
+/** !
  * Quad tree example program
  * 
  * @param argc the argc parameter of the entry point
@@ -137,6 +151,16 @@ int tree_red_black_example ( int argc, const char *argv[] );
 int binary_tree_example_comparator ( const void *const p_a, const void *const p_b );
 
 /** !
+ * Example merkle tree comparator
+ * 
+ * @param p_a pointer to a
+ * @param p_b pointer to b 
+ * 
+ * @return 1 on success, 0 on error
+*/
+int merkel_tree_example_comparator ( const void *const p_a, const void *const p_b );
+
+/** !
  * Example binary tree key accessor
  * 
  * @param pp_result result
@@ -145,6 +169,16 @@ int binary_tree_example_comparator ( const void *const p_a, const void *const p_
  * @return 1 on success, 0 on error
 */
 const void *const binary_tree_example_key_accessor (const void *const p_value);
+
+/** !
+ * Example merkle tree key accessor
+ * 
+ * @param pp_result result
+ * @param p_value   the value to access 
+ * 
+ * @return 1 on success, 0 on error
+*/
+const void *const merkle_tree_example_key_accessor (const void *const p_value);
 
 /** !
  * Example binary tree node serializer
@@ -174,6 +208,19 @@ int binary_tree_example_parser ( FILE *p_file, binary_tree_node *p_binary_tree_n
  * @return 1 on success, 0 on error
  */
 int binary_tree_print_node ( void *p_value );
+
+/** !
+ * Print a merkle tree node to standard out
+ * 
+ * @param p_value the value
+ * @param _hash   the hash
+ * @param leaf    true if leaf else false
+ * 
+ * @return 1 on success, 0 on error
+ */
+int merkle_tree_print_node ( void *p_value, hash64 _hash, bool leaf );
+
+int tree_print_node ( void *p_value );
 
 /** !
  * Convert text to two bit values. 
@@ -219,13 +266,12 @@ int main ( int argc, const char *argv[] )
     log_info("╰──────────────╯\n");
     printf(
         "The tree library provides high level abstractions for %d different trees.\n"\
-        "The AVL tree, the B tree, the binary tree, the quadtree, the R tree, and the red black tree.\n\n"\
+        "The AVL tree, the B tree, the binary tree, the red black tree, and the tree.\n\n"\
         "An AVL tree is self balancing binary search tree; suitable for frequent searching.\n"\
         "A B tree is a self balancing, flat search tree; suitable for storage systems and large data.\n"\
         "A Binary tree is the most primitive tree.\n"\
-        "A Quadtree is a tree where each node has four childern; suitable for dynamic spatial computing.\n"\
-        "An R tree is a self balancing, flat search tree; suitable for large spatial data.\n"\
-        "A Red Black tree is an unbalanced binary search tree; suitable for frequent insertions / deletions.\n\n",
+        "A Red Black tree is an unbalanced binary search tree; suitable for frequent insertions / deletions.\n"\
+        "A Tree is a data type that implements the tree interface.\n\n",
         TREE_EXAMPLES_QUANTITY
     );
 
@@ -243,7 +289,7 @@ int main ( int argc, const char *argv[] )
     if ( examples_to_run[TREE_EXAMPLE_B] )
 
         // Error check
-        //if ( tree_b_example(argc, argv) == 0 ) goto failed_to_run_b_tree_example;
+        if ( tree_b_example(argc, argv) == 0 ) goto failed_to_run_b_tree_example;
         
     // Run the binary tree example program
     if ( examples_to_run[TREE_EXAMPLE_BINARY] )
@@ -251,24 +297,24 @@ int main ( int argc, const char *argv[] )
         // Error check
         if ( tree_binary_example(argc, argv) == 0 ) goto failed_to_run_binary_tree_example;
 
-    // Run the quadtree example program
-    if ( examples_to_run[TREE_EXAMPLE_QUAD] )
+    // Run the merkle tree example program
+    if ( examples_to_run[TREE_EXAMPLE_MERKLE] )
 
         // Error check
-        if ( tree_quad_example(argc, argv) == 0 ) goto failed_to_run_quad_tree_example;
-        
-    // Run the R tree example program
-    if ( examples_to_run[TREE_EXAMPLE_R] )
-
-        // Error check
-        if ( tree_r_example(argc, argv) == 0 ) goto failed_to_run_r_tree_example;
+        if ( tree_merkle_example(argc, argv) == 0 ) goto failed_to_run_merkle_tree_example;
 
     // Run the red black tree example program
     if ( examples_to_run[TREE_EXAMPLE_RED_BLACK] )
 
         // Error check
         if ( tree_red_black_example(argc, argv) == 0 ) goto failed_to_run_red_black_tree_example;
-        
+    
+    // Run the tree example program
+    if ( examples_to_run[TREE_EXAMPLE] )
+
+        // Error check
+        if ( tree_example(argc, argv) == 0 ) goto failed_to_run_tree_example;
+
     // Success
     return EXIT_SUCCESS;
 
@@ -306,19 +352,11 @@ int main ( int argc, const char *argv[] )
 
             // Error
             return EXIT_FAILURE;
-
-        failed_to_run_quad_tree_example:
-
-            // Print an error message
-            printf("Failed to run quadtree example!\n");
-
-            // Error
-            return EXIT_FAILURE;
-
-        failed_to_run_r_tree_example:
+        
+        failed_to_run_merkle_tree_example:
 
             // Print an error message
-            printf("Failed to run R tree example!\n");
+            printf("Failed to run merkle tree example!\n");
 
             // Error
             return EXIT_FAILURE;
@@ -327,6 +365,14 @@ int main ( int argc, const char *argv[] )
 
             // Print an error message
             printf("Failed to run red black tree example!\n");
+
+            // Error
+            return EXIT_FAILURE;
+        
+        failed_to_run_tree_example:
+
+            // Print an error message
+            printf("Failed to run tree example!\n");
 
             // Error
             return EXIT_FAILURE;
@@ -340,7 +386,7 @@ void print_usage ( const char *argv0 )
     if ( argv0 == (void *) 0 ) exit(EXIT_FAILURE);
 
     // Print a usage message to standard out
-    printf("Usage: %s [avl] [b] [binary] [quad] [r] [redblack] [--preserve-files]\n", argv0);
+    printf("Usage: %s [avl] [b] [binary] [merkle] [redblack] [tree] [--preserve-files]\n", argv0);
 
     // Done
     return;
@@ -359,23 +405,41 @@ void parse_command_line_arguments ( int argc, const char *argv[], bool *examples
     for (size_t i = 1; i < argc; i++)
     {
         
-        // Thread example?
+        // AVL tree example?
         if ( strcmp(argv[i], "avl") == 0 )
 
             // Set the avl tree example flag
             examples_to_run[TREE_EXAMPLE_AVL] = true;
 
-        // Thread pool example?
+        // B tree example?
         else if ( strcmp(argv[i], "b") == 0 )
             
             // Set the B tree example flag
             examples_to_run[TREE_EXAMPLE_B] = true;
 
-        // Schedule example?
+        // Binary tree example?
         else if ( strcmp(argv[i], "binary") == 0 )
 
             // Set the binary tree example flag
             examples_to_run[TREE_EXAMPLE_BINARY] = true;
+
+        // Merkle tree example?
+        else if ( strcmp(argv[i], "merkle") == 0 )
+
+            // Set the merkle tree example flag
+            examples_to_run[TREE_EXAMPLE_MERKLE] = true;
+
+        // Red Black tree example?
+        else if ( strcmp(argv[i], "redblack") == 0 )
+
+            // Set the red black tree example flag
+            examples_to_run[TREE_EXAMPLE_RED_BLACK] = true;
+
+        // Tree example?
+        else if ( strcmp(argv[i], "tree") == 0 )
+
+            // Set the tree example flag
+            examples_to_run[TREE_EXAMPLE] = true;
 
         // Default
         else goto invalid_arguments;
@@ -437,50 +501,51 @@ int tree_b_example ( int argc, const char *argv[] )
     printf(
         "This example creates a B tree from an E. Coli genome. Each property stores a \n"\
         "nucleotide sequence of length 8. The B tree is serialized to the disk, loaded,\n"\
-        "and the most frequent nucleotide sequences are printed to standard out\n\n"
+        "and the most frequent nucleotide sequences are printed to standard out\n\nTODO\n\n"
     );
     
     // Initialized data
     b_tree *p_b_tree = (void *) 0;
 
-    remove("resources/output.b_tree");
+    // remove("resources/output.b_tree");
 
-    // Construct a B tree
-    if ( b_tree_construct(&p_b_tree, "resources/output.b_tree", 0, 2, 64) == 0 ) goto failed_to_create_b_tree;
+    // // Construct a B tree
+    // if ( b_tree_construct(&p_b_tree, "resources/output.b_tree", 0, 2, 64) == 0 ) goto failed_to_create_b_tree;
 
-    b_tree_insert(p_b_tree, (void *) 1);
-    b_tree_insert(p_b_tree, (void *) 2);
-    b_tree_insert(p_b_tree, (void *) 3);
-    b_tree_insert(p_b_tree, (void *) 4);
-    b_tree_insert(p_b_tree, (void *) 5);
-    b_tree_insert(p_b_tree, (void *) 6);
-    b_tree_traverse_inorder(p_b_tree, (void *)1);
+    // b_tree_insert(p_b_tree, (void *) 1);
+    // b_tree_insert(p_b_tree, (void *) 2);
+    // b_tree_insert(p_b_tree, (void *) 3);
+    // b_tree_insert(p_b_tree, (void *) 4);
+    // b_tree_insert(p_b_tree, (void *) 5);
+    // b_tree_insert(p_b_tree, (void *) 6);
+    // b_tree_traverse_inorder(p_b_tree, (void *)1);
 
+    // Success
     return 1;
 
     // Example
     {
         // Add data to the B tree
         //goto add_e_coli_genome;
-
+        //
         // Done
         //done_adding_genome:
-
+        //
         // Print the quantity of keys in the B tree
         //printf("%d\n", b_tree_insert(p_b_tree, 1, 1));
-
+        //
         // Write the B tree to the disk
         // if ( b_tree_flush(p_b_tree) == 0 ) goto failed_to_flush_b_tree;
-
+        //
         // Destroy the B tree
         // if ( b_tree_destroy(&p_b_tree) == 0 ) goto failed_to_destroy_b_tree;
-
+        //
         // Load the B tree
         // if ( b_tree_load(&p_b_tree, "output.b_tree") == 0 ) goto failed_to_load_b_tree;
-
+        //
         // Query the B tree
         //
-        
+        //
         // TODO: More stuff
     }
 
@@ -496,30 +561,30 @@ int tree_b_example ( int argc, const char *argv[] )
         // unsigned long long sequence_id = 0;
         // char  _buffer[B_TREE_EXAMPLE_SEQUENCE_LENGTH + 1] = { 0 },
         //      *file_contents = TREE_REALLOC(0, file_size);
-
+        //
         // // Error check
         // if ( file_contents == (void *) 0 ) goto failed_to_load_file;
-
+        //
         // // Read the file
         // load_file("resources/ecoli.genome", file_contents, false);
-
+        //
         // // Iterate through the file
         // for (size_t i = 0; i < file_size - B_TREE_EXAMPLE_SEQUENCE_LENGTH; i++)
         // {
-
+        //
         //     // Examine the next N bases
         //     for (size_t j = 0; j < B_TREE_EXAMPLE_SEQUENCE_LENGTH; j++)
-
+        //
         //         // Store the character
         //         _buffer[j] = file_contents[i + j];
-            
+        //  
         //     // Produce a value from the sequence
         //     ascii_to_u64_encoded_2_bit_slice(_buffer, &sequence_id);
-
+        //
         //     // Insert the property into the B tree
         //     b_tree_insert(p_b_tree, (void *)sequence_id, (void *)sequence_id);
         // }
-        
+        //
         // // Done
         // goto done_adding_genome;
     }
@@ -598,7 +663,7 @@ int tree_binary_example ( int argc, const char *argv[] )
     fprintf(stderr, "DONE\nSerializing tree... ");
 
     // Serialize the binary tree to a file
-    if ( binary_tree_serialize(p_binary_tree, "resources/output.binary_tree", binary_tree_example_serializer) == 0 ) goto failed_to_serialize_binary_tree;
+    if ( binary_tree_serialize(p_binary_tree, "resources/output.binary_tree") == 0 ) goto failed_to_serialize_binary_tree;
 
     // Log
     fprintf(stderr, "DONE\nDestroying tree... ");
@@ -610,19 +675,19 @@ int tree_binary_example ( int argc, const char *argv[] )
     fprintf(stderr, "DONE\nParsing tree... ");
 
     // Load the binary tree from the file
-    if ( binary_tree_parse(&p_binary_tree, "resources/output.binary_tree", binary_tree_example_comparator, binary_tree_example_key_accessor, (fn_binary_tree_parse *) binary_tree_example_parser) == 0 ) goto failed_to_parse_binary_tree;
+    if ( binary_tree_parse(&p_binary_tree, "resources/output.binary_tree", binary_tree_example_comparator, 0, (fn_binary_tree_parse *) binary_tree_example_parser) == 0 ) goto failed_to_parse_binary_tree;
     
     // Log
     fprintf(stderr, "DONE\nPrinting tree... \n\n");
     
     // Traverse the binary tree using the in order technique
-    binary_tree_traverse_inorder(p_binary_tree, (fn_binary_tree_traverse *)binary_tree_print_node);
+    binary_tree_traverse_preorder(p_binary_tree, (fn_binary_tree_traverse *)binary_tree_print_node);
 
     // Query the binary tree
     if ( binary_tree_search(p_binary_tree, "thirteen", &p_result) == 0 ) goto failed_to_search_binary_tree;
 
     // Print the random index
-    log_info("\nDONE\n\nSearching \"%s\" yields \"%lg\"\n\n", "thirteen", p_result->number);
+    log_info("\nDONE\n\nSearching \"%s\" yields \"%zu\"\n\n", "thirteen", p_result->number);
 
     // Success
     return 1;
@@ -675,30 +740,118 @@ int tree_binary_example ( int argc, const char *argv[] )
     }
 }
 
-int tree_quad_example ( int argc, const char *argv[] )
+int tree_merkle_example ( int argc, const char *argv[] )
 {
+    
+    // Supress compiler warnings
+    (void) argc;
+    (void) argv;
 
     // Formatting
-    log_info("╭──────────────────╮\n");
-    log_info("│ Quadtree example │\n");
-    log_info("╰──────────────────╯\n");
-    printf("This example simulates particles in a 2D plane.\n\n");
+    log_info("╭─────────────────────╮\n");
+    log_info("│ Merkle tree example │\n");
+    log_info("╰─────────────────────╯\n");
+    printf(
+        "TODO: Describe this abstraction\n\n"
+    );
     
+    /*
+    // Initialized data
+    merkle_tree *p_merkle_tree = 0;
+    size_t random_index = ( rand() % 15 ) + 1;
+    number_and_string *p_result = 0;
+    char *keys [MERKLE_TREE_EXAMPLE_LIST_LENGTH] =
+    { 
+        "Transaction(4)", "Transaction(2)", "Transaction(6)", "Transaction(1)", "Transaction(3)", "Transaction(5)", "Transaction(7)"
+    };
+    unsigned long long values [MERKLE_TREE_EXAMPLE_LIST_LENGTH] = { 0,1,2,3,4,5,6 };
+
+    // Log
+    fprintf(stderr, "Constructing tree... ");
+
+    // Construct a tree
+    if ( merkle_tree_construct(&p_merkle_tree, merkel_tree_example_comparator, merkle_tree_example_key_accessor, 0, sizeof(number_and_string)) == 0 ) goto failed_to_construct_tree;
+
+    // Log
+    fprintf(stderr, "DONE\nInserting properties... ");
+
+    // Iterate over each property
+    for (size_t i = 0; i < MERKLE_TREE_EXAMPLE_LIST_LENGTH; i++)
+    {
+        
+        // Initialized data
+        number_and_string *p_number_and_string = malloc(sizeof(number_and_string));
+
+        // Store the number
+        p_number_and_string->number = values[i];
+
+        // Copy the string
+        strncpy(p_number_and_string->_string, keys[i], sizeof(p_number_and_string->_string));
+
+        // Store the property in the tree
+        (void) merkle_tree_insert(p_merkle_tree, p_number_and_string);
+    }
+
+    // Log
+    fprintf(stderr, "DONE\nPrinting tree... \n");
+    putchar('\n');
+
+    log_info("Leaf nodes are in blue\n");
+    log_error("Internal nodes are in red\n\n");
+
+    // Traverse the merkle tree using the in order technique
+    merkle_tree_traverse_postorder(p_merkle_tree, (fn_merkle_tree_traverse *)merkle_tree_print_node);
+    */
+
     // Success
     return 1;
-}
 
-int tree_r_example ( int argc, const char *argv[] )
-{
+    // Error handling
+    {
 
-    // Formatting
-    log_info("╭────────────────╮\n");
-    log_info("│ R tree example │\n");
-    log_info("╰────────────────╯\n");
-    printf("This example TODO: Describe example.\n\n");
-    
-    // Success
-    return 1;
+        // Tree errors
+        {
+            failed_to_construct_tree:
+                
+                // Write an error message to standard out
+                log_error("Error: Failed to construct merkle tree!\n");
+
+                // Error
+                return EXIT_FAILURE;
+            
+            failed_to_serialize_merkle_tree:
+                                
+                // Write an error message to standard out
+                log_error("Error: Failed to serialize merkle tree!\n");
+
+                // Error
+                return EXIT_FAILURE;
+
+            failed_to_parse_merkle_tree:
+
+                // Write an error message to standard out
+                log_error("Error: Failed to parse merkle tree!\n");
+
+                // Error
+                return EXIT_FAILURE;
+            
+            failed_to_destroy_merkle_tree:
+
+                // Write an error message to standard out
+                log_error("Error: Failed to destroy merkle tree!\n");
+
+                // Error
+                return EXIT_FAILURE;
+
+            failed_to_search_merkle_tree:
+
+                // Write an error message to standard out
+                log_error("Error: Failed to search merkle tree!\n");
+
+                // Error
+                return EXIT_FAILURE;
+        }
+    }
 }
 
 int tree_red_black_example ( int argc, const char *argv[] )
@@ -712,6 +865,88 @@ int tree_red_black_example ( int argc, const char *argv[] )
     
     // Success
     return 1;
+}
+
+int tree_example ( int argc, const char *argv[] )
+{
+
+    // Formatting
+    log_info("╭──────────────╮\n");
+    log_info("│ Tree example │\n");
+    log_info("╰──────────────╯\n");
+    printf("This example demonstrates the search tree interface\n\n");
+
+    // Initialized data
+    tree *p_tree = (void *) 0;
+    void *p_result = (void *) 0;
+    enum tree_type_e _type = TREE_BINARY;
+    tree_create_serializer _serializers = 
+    {
+        ._type               = TREE_CREATE_SERIALIZE,
+        .pfn_value_parse     = tree_parser,
+        .pfn_value_serialize = tree_serializer,
+        .p_next              = (void *) 0,
+    };
+    tree_create_identity _identity =
+    { 
+        ._type            = TREE_CREATE_IDENTITY,
+        .pfn_comparator   = tree_compare,
+        .pfn_key_accessor = tree_key_accessor,
+        .value_size       = sizeof(void *),
+        .p_next           = &_serializers,
+    };
+
+    // Construct a tree
+    if ( tree_construct(&p_tree, _type, &_identity) == 0 ) goto failed_to_construct_tree;
+    
+    // Insert some values
+    {
+
+        // Initialized data
+        FILE *p_input_file = fopen("resources/tree.in", "r");
+
+        // Error check
+        if ( p_input_file == (void *) 0 ) goto failed_to_open_file;
+
+        // Feed numbers
+        while ( !feof(p_input_file) )
+        {
+            
+            // Initizlized data
+            char   _line[64] = { 0 };
+            size_t value     = 0;
+
+            fscanf(p_input_file, "%40[^\n]", &_line);
+            fgetc(p_input_file);
+            sscanf(_line, "%d", &value);
+
+            tree_insert(p_tree, value);
+        }
+        
+        // Cleanup
+        fclose(p_input_file);
+    }
+    
+    // Traverse in order
+    tree_traverse_inorder(p_tree, tree_print_node);
+
+    // Serialize
+    tree_serialize(p_tree, "tree.out");
+
+    // Search for 7
+    tree_search(p_tree, (void *) 7, &p_result);
+    
+    // Formatting
+    printf("Search for 7 yields: %p\n", p_result);
+
+    // Success
+    return 1;
+
+    failed_to_construct_tree:
+    failed_to_open_file:
+
+        // Error
+        return 0;
 }
 
 int ascii_to_u64_encoded_2_bit_slice ( const char *const p_text, unsigned long long *p_result )
@@ -804,6 +1039,13 @@ int binary_tree_example_comparator ( const void *const p_a, const void *const p_
     return strcmp(((number_and_string *)p_b)->_string, ((number_and_string *)p_a)->_string);
 }
 
+int merkel_tree_example_comparator ( const void *const p_a, const void *const p_b )
+{
+
+    // Success
+    return (size_t) p_b - (size_t) p_a;
+}
+
 const void *const binary_tree_example_key_accessor ( const void *const p_value )
 {
 
@@ -812,6 +1054,16 @@ const void *const binary_tree_example_key_accessor ( const void *const p_value )
 
     // Success
     return &p_number_and_string->_string;
+}
+
+const void *const merkle_tree_example_key_accessor ( const void *const p_value )
+{
+
+    // Initialized data
+    const number_and_string *p_number_and_string = p_value;
+
+    // Success
+    return (const void *const) p_number_and_string->number;
 }
 
 int binary_tree_example_serializer ( FILE *p_file, binary_tree_node *p_binary_tree_node )
@@ -843,11 +1095,34 @@ int binary_tree_example_parser ( FILE *p_file, binary_tree_node *p_binary_tree_n
     return 1;
 }
 
+int tree_print_node ( void *p_value )
+{
+
+    // Print the property
+    log_info("%p\n", p_value);
+
+    // Success
+    return 1;
+}
+
 int binary_tree_print_node ( void *p_value )
 {
 
     // Print the property
     log_info("%s\n", ((number_and_string *) p_value)->_string);
+
+    // Success
+    return 1;
+}
+
+int merkle_tree_print_node ( void *p_value, hash64 _hash, bool leaf )
+{
+
+    // Print the property
+    if ( leaf )
+        log_info("0x%016llx : %s\n", _hash, ((number_and_string *) p_value)->_string);
+    else
+        log_error("0x%016llx : inode\n", _hash);
 
     // Success
     return 1;
