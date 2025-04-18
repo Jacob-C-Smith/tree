@@ -100,9 +100,10 @@ struct binary_tree_s
 /** !
  * Construct an empty binary tree
  * 
- * @param pp_binary_tree return
- * @param pfn_is_equal   function for testing equality of elements in set IF parameter is not null ELSE default
- * @param node_size      the size of a serialized node in bytes
+ * @param pp_binary_tree   return
+ * @param pfn_is_equal     function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pfn_key_accessor function for accessing the key of a value IF parameter is not null ELSE default
+ * @param node_size        the size of a serialized node in bytes
  * 
  * @return 1 on success, 0 on error
  */
@@ -130,7 +131,7 @@ int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value );
+int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, void **pp_value );
 
 // Mutators
 /** !
