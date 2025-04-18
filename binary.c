@@ -10,7 +10,7 @@
 #include <tree/binary.h>
 
 // Static data
-static const unsigned long long eight_bytes_of_zero = 0;
+static const unsigned long long eight_bytes_of_f = 0xffffffffffffffff;
 
 // Forward declarations
 /** !
@@ -297,7 +297,7 @@ int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *p
         .p_root    = (void *) 0,
         .functions =
         {
-            .pfn_is_equal = (pfn_is_equal) ? pfn_is_equal : tree_compare_function,
+            .pfn_is_equal     = (pfn_is_equal)     ? pfn_is_equal     : tree_compare_function,
             .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : tree_key_is_value
         },
         .metadata =
@@ -492,17 +492,17 @@ int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **
     }
 }
 
-int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value )
+int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, void **pp_value )
 {
 
     // Argument check
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
 
-    // Lock
-    mutex_lock(&p_binary_tree->_lock);
-
     // State check
     if ( p_binary_tree->p_root == (void *) 0 ) return 0;
+
+    // Lock
+    mutex_lock(&p_binary_tree->_lock);
 
     // Initialized data
     binary_tree_node *p_node = p_binary_tree->p_root;
@@ -1257,7 +1257,7 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, 
     }
 
     // Allocate a binary tree
-    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, pfn_tree_key_accessor, node_size - ( 2 * sizeof(unsigned long long) )) == 0 ) goto failed_to_construct_binary_tree;
+    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, pfn_tree_key_accessor, node_size-sizeof(p_binary_tree->metadata)) == 0 ) goto failed_to_construct_binary_tree;
 
     // Read the root node
     if ( binary_tree_parse_node(p_f, p_binary_tree, &p_binary_tree->p_root, pfn_parse_node) == 0 ) goto failed_to_construct_binary_tree;
@@ -1339,17 +1339,22 @@ int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tr
 
     p_binary_tree_node->node_pointer = ( ftell(p_file) ) / (p_binary_tree->metadata.node_size);
 
+    // Set the pointer correctly
+    fseek(p_file, (long) ( sizeof(p_binary_tree->metadata) + (p_binary_tree_node->node_pointer * ( p_binary_tree->metadata.node_size ))), SEEK_SET);
+
     // User provided parsing function
     pfn_binary_tree_parse(p_file, p_binary_tree_node);
     
     // Store the left pointer
     fread(&left_pointer, 8, 1, p_file);
+    // printf("[%04d] -> left : < %llu, %lld >\n", p_binary_tree_node->node_pointer, ftell(p_file), left_pointer);
 
     // Store the right pointer
     fread(&right_pointer, 8, 1, p_file);
+    // printf("       -> right: < %llu, %lld >\n", ftell(p_file), right_pointer);
     
     // State check
-    if ( left_pointer == 0 ) goto parse_right;
+    if ( left_pointer == eight_bytes_of_f ) goto parse_right;
 
     // Set the pointer correctly
     fseek(p_file, (long) ( sizeof(p_binary_tree->metadata) + (left_pointer * ( p_binary_tree->metadata.node_size ))), SEEK_SET);
@@ -1360,7 +1365,7 @@ int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tr
     parse_right:
 
     // State check
-    if ( right_pointer == 0 ) goto done;
+    if ( right_pointer == eight_bytes_of_f ) goto done;
 
     // Set the pointer correctly
     fseek(p_file, (long) ( sizeof(p_binary_tree->metadata) + (right_pointer * ( p_binary_tree->metadata.node_size))), SEEK_SET);
@@ -1447,12 +1452,12 @@ int binary_tree_serialize_node ( FILE *p_file, binary_tree *p_binary_tree, binar
 
     // Serialize the node
     pfn_binary_tree_serialize(p_file, p_binary_tree_node);
-
+    
     // Write the left pointer to the output
-    fwrite((p_binary_tree_node->p_left) ? &p_binary_tree_node->p_left->node_pointer : &eight_bytes_of_zero, sizeof(void *), 1, p_file);
+    fwrite((p_binary_tree_node->p_left) ? &p_binary_tree_node->p_left->node_pointer : &eight_bytes_of_f, sizeof(void *), 1, p_file);
 
     // Write the right pointer to the output
-    fwrite((p_binary_tree_node->p_right) ? &p_binary_tree_node->p_right->node_pointer : &eight_bytes_of_zero, sizeof(void *), 1, p_file);
+    fwrite((p_binary_tree_node->p_right) ? &p_binary_tree_node->p_right->node_pointer : &eight_bytes_of_f, sizeof(void *), 1, p_file);
 
     // Write the left node to the output
     if ( p_binary_tree_node->p_left ) binary_tree_serialize_node(p_file, p_binary_tree, p_binary_tree_node->p_left, pfn_binary_tree_serialize);

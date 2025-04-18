@@ -38,8 +38,8 @@ enum tree_examples_e
 // Structure definitions
 struct number_and_string_s
 {
-    char _string[16];
-    double number;
+    char _string[12];
+    int  number;
 };
 
 // Type definitions
@@ -237,7 +237,7 @@ int main ( int argc, const char *argv[] )
     if ( examples_to_run[TREE_EXAMPLE_AVL] )
 
         // Error check
-        if ( tree_avl_example(argc, argv) == 0 ) goto failed_to_run_avl_tree_example;
+        ;//if ( tree_avl_example(argc, argv) == 0 ) goto failed_to_run_avl_tree_example;
 
     // Run the B tree example program
     if ( examples_to_run[TREE_EXAMPLE_B] )
@@ -255,19 +255,19 @@ int main ( int argc, const char *argv[] )
     if ( examples_to_run[TREE_EXAMPLE_QUAD] )
 
         // Error check
-        if ( tree_quad_example(argc, argv) == 0 ) goto failed_to_run_quad_tree_example;
+        ;//if ( tree_quad_example(argc, argv) == 0 ) goto failed_to_run_quad_tree_example;
         
     // Run the R tree example program
     if ( examples_to_run[TREE_EXAMPLE_R] )
 
         // Error check
-        if ( tree_r_example(argc, argv) == 0 ) goto failed_to_run_r_tree_example;
+        ;//if ( tree_r_example(argc, argv) == 0 ) goto failed_to_run_r_tree_example;
 
     // Run the red black tree example program
     if ( examples_to_run[TREE_EXAMPLE_RED_BLACK] )
 
         // Error check
-        if ( tree_red_black_example(argc, argv) == 0 ) goto failed_to_run_red_black_tree_example;
+        ;//if ( tree_red_black_example(argc, argv) == 0 ) goto failed_to_run_red_black_tree_example;
         
     // Success
     return EXIT_SUCCESS;
@@ -558,71 +558,68 @@ int tree_binary_example ( int argc, const char *argv[] )
     );
 
     // Initialized data
-    binary_tree *p_binary_tree = 0;
-    size_t random_index = ( rand() % 15 ) + 1;
-    number_and_string *p_result = 0;
-    char *keys [BINARY_TREE_EXAMPLE_LIST_LENGTH] =
-    { 
-        "eight", "four", "twelve", "two", "six", "ten", "fourteen", "one",
-        "three", "five", "seven", "nine", "eleven", "thirteen", "fifteen" 
+    binary_tree             *p_binary_tree = 0;
+    number_and_string       *p_result      = 0;
+    number_and_string        _values[BINARY_TREE_EXAMPLE_LIST_LENGTH] =
+    {
+        { ._string = "eight"   , .number = 8  },
+        { ._string = "four"    , .number = 4  },
+        { ._string = "twelve"  , .number = 12 },
+        { ._string = "two"     , .number = 2  },
+        { ._string = "six"     , .number = 6  },
+        { ._string = "ten"     , .number = 10 },
+        { ._string = "fourteen", .number = 14 },
+        { ._string = "one"     , .number = 1  },
+        { ._string = "three"   , .number = 3  },
+        { ._string = "five"    , .number = 5  },
+        { ._string = "seven"   , .number = 7  },
+        { ._string = "nine"    , .number = 9  },
+        { ._string = "eleven"  , .number = 11 },
+        { ._string = "thirteen", .number = 13 },
+        { ._string = "fifteen" , .number = 15 }
     };
-    unsigned long long values [BINARY_TREE_EXAMPLE_LIST_LENGTH] = { 8,4,12,2,6,10,14,1,3,5,7,9,11,13,15 };
-
-    // Log
-    fprintf(stderr, "Constructing tree... ");
 
     // Construct a tree
-    if (binary_tree_construct(&p_binary_tree, binary_tree_example_comparator, binary_tree_example_key_accessor, sizeof(number_and_string)) == 0 ) goto failed_to_construct_tree;
-
-    // Log
-    fprintf(stderr, "DONE\nInserting properties... ");
+    binary_tree_construct(
+        &p_binary_tree,                   // Result
+        binary_tree_example_comparator,   // Node comparator
+        binary_tree_example_key_accessor, // Key accessor
+        16                                // sizeof(node)
+    );
 
     // Iterate over each property
-    for (size_t i = 0; i < 15; i++)
-    {
+    for (size_t i = 0; i < BINARY_TREE_EXAMPLE_LIST_LENGTH; i++)
         
-        // Initialized data
-        number_and_string *p_number_and_string = malloc(sizeof(number_and_string));
-
-        // Store the number
-        p_number_and_string->number = values[i];
-
-        // Copy the string
-        strncpy(p_number_and_string->_string, keys[i], sizeof(p_number_and_string->_string));
-
         // Store the property in the tree
-        (void) binary_tree_insert(p_binary_tree, p_number_and_string);
-    }
-    
-    // Log
-    fprintf(stderr, "DONE\nSerializing tree... ");
+        (void) binary_tree_insert(p_binary_tree, &_values[i]);
 
     // Serialize the binary tree to a file
-    if ( binary_tree_serialize(p_binary_tree, "resources/output.binary_tree", binary_tree_example_serializer) == 0 ) goto failed_to_serialize_binary_tree;
-
-    // Log
-    fprintf(stderr, "DONE\nDestroying tree... ");
+    binary_tree_serialize(
+        p_binary_tree,                  // The binary tree
+        "resources/output.binary_tree", // The path
+        binary_tree_example_serializer  // The node serializer
+    );
 
     // Destroy the binary tree
-    if ( binary_tree_destroy(&p_binary_tree) == 0 ) goto failed_to_destroy_binary_tree;
-
-    // Log
-    fprintf(stderr, "DONE\nParsing tree... ");
+    binary_tree_destroy(&p_binary_tree);
 
     // Load the binary tree from the file
-    if ( binary_tree_parse(&p_binary_tree, "resources/output.binary_tree", binary_tree_example_comparator, binary_tree_example_key_accessor, (fn_binary_tree_parse *) binary_tree_example_parser) == 0 ) goto failed_to_parse_binary_tree;
-    
-    // Log
-    fprintf(stderr, "DONE\nPrinting tree... \n\n");
+    binary_tree_parse(
+        &p_binary_tree,                   // Result
+        "resources/output.binary_tree",   // Path to the tree
+        binary_tree_example_comparator,   // The comparator
+        binary_tree_example_key_accessor, // The key accessor
+        binary_tree_example_parser        // The node parser
+    );
     
     // Traverse the binary tree using the in order technique
-    binary_tree_traverse_inorder(p_binary_tree, (fn_binary_tree_traverse *)binary_tree_print_node);
+    binary_tree_traverse_inorder(p_binary_tree, binary_tree_print_node);
 
     // Query the binary tree
-    if ( binary_tree_search(p_binary_tree, "thirteen", &p_result) == 0 ) goto failed_to_search_binary_tree;
+    binary_tree_search(p_binary_tree, "thirteen", &p_result);
 
-    // Print the random index
-    log_info("\nDONE\n\nSearching \"%s\" yields \"%lg\"\n\n", "thirteen", p_result->number);
+    // Print the result
+    printf("Searching \"thirteen\" yields \"%d\"\n", p_result->number);
 
     // Success
     return 1;
@@ -801,7 +798,7 @@ int binary_tree_example_comparator ( const void *const p_a, const void *const p_
 {
 
     // Success
-    return strcmp(((number_and_string *)p_b)->_string, ((number_and_string *)p_a)->_string);
+    return strcmp(p_b, p_a);
 }
 
 const void *const binary_tree_example_key_accessor ( const void *const p_value )
@@ -811,7 +808,7 @@ const void *const binary_tree_example_key_accessor ( const void *const p_value )
     const number_and_string *p_number_and_string = p_value;
 
     // Success
-    return &p_number_and_string->_string;
+    return (void *)p_number_and_string->_string;
 }
 
 int binary_tree_example_serializer ( FILE *p_file, binary_tree_node *p_binary_tree_node )
@@ -831,12 +828,12 @@ int binary_tree_example_parser ( FILE *p_file, binary_tree_node *p_binary_tree_n
     number_and_string *p_number_and_string = malloc(sizeof(number_and_string));
 
     // Read a string from the input
-    fread(&p_number_and_string->_string, 16, 1, p_file);
+    fread(&p_number_and_string->_string, 12, 1, p_file);
 
     // Read a double from the input
-    fread(&p_number_and_string->number, 8, 1, p_file);
+    fread(&p_number_and_string->number, 4, 1, p_file);
 
-    // Allocate memory for the value
+    // Store the value
     p_binary_tree_node->p_value = p_number_and_string;
     
     // Success
@@ -845,6 +842,9 @@ int binary_tree_example_parser ( FILE *p_file, binary_tree_node *p_binary_tree_n
 
 int binary_tree_print_node ( void *p_value )
 {
+
+    // Static data
+    static int i = 0;
 
     // Print the property
     log_info("%s\n", ((number_and_string *) p_value)->_string);
