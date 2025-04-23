@@ -144,7 +144,7 @@ int binary_tree_example_comparator ( const void *const p_a, const void *const p_
  * 
  * @return 1 on success, 0 on error
 */
-const void *const binary_tree_example_key_accessor (const void *const p_value);
+const void *binary_tree_example_key_accessor ( const void *const p_value );
 
 /** !
  * Example binary tree node serializer
@@ -616,7 +616,7 @@ int tree_binary_example ( int argc, const char *argv[] )
     binary_tree_traverse_inorder(p_binary_tree, binary_tree_print_node);
 
     // Query the binary tree
-    binary_tree_search(p_binary_tree, "thirteen", &p_result);
+    binary_tree_search(p_binary_tree, "thirteen", (void **)&p_result);
 
     // Print the result
     printf("Searching \"thirteen\" yields \"%d\"\n", p_result->number);
@@ -801,7 +801,7 @@ int binary_tree_example_comparator ( const void *const p_a, const void *const p_
     return strcmp(p_b, p_a);
 }
 
-const void *const binary_tree_example_key_accessor ( const void *const p_value )
+const void *binary_tree_example_key_accessor ( const void *const p_value )
 {
 
     // Initialized data
