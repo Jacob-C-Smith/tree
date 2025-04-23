@@ -9,22 +9,28 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/extern/)
 
-# Compiler warnings
-add_compile_options(-Wall -Wextra -Wpointer-arith -Wstrict-prototypes -Wformat-security -Wduplicated-cond -Wfloat-equal -Wshadow -Wconversion -Wjump-misses-init -Wlogical-not-parentheses -Wnull-dereference)
+# Set compiler warnings
+if(MSVC)
+    # TODO
+else()
+
+    # For clang
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lrt -std=gnu99 -Wall -Wextra  -Weverything -Wno-declaration-after-statement -Ofast")
+
+    # For GCC
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -O3 -pthread -lpthread")
+    add_compile_definitions(__USE_POSIX199309)
+    add_compile_options(-Wall -Wextra -Wpointer-arith -Wstrict-prototypes -Wformat-security -Wfloat-equal -Wshadow -Wconversion -pthread -lpthread -Wlogical-not-parentheses -Wnull-dereference)
+endif()
 
 # Comment out for Debug mode
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-# Set debug mode
-if (NOT ${IS_DEBUG_BUILD})
-    add_compile_definitions(NDEBUG)
-endif()
+# Build sync with timer
+add_compile_definitions(BUILD_SYNC_WITH_TIMER)
 
-# Build sync with semaphore
-add_compile_definitions(BUILD_SYNC_WITH_SEMAPHORE)
-
-# Build sync with monitor
-add_compile_definitions(BUILD_SYNC_WITH_MONITOR)
+# Build sync with mutex
+add_compile_definitions(BUILD_SYNC_WITH_MUTEX)
 
 # Find the log module
 if ( NOT "${HAS_LOG}")
